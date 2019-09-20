@@ -870,4 +870,4 @@ curl \
     http://nomad-server.service.$REGION.consul:4646/v1/jobs
 
 
-echo "Hashistack complete."
+echo "Javaperks Application complete."
