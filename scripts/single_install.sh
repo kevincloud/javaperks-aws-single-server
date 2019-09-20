@@ -73,8 +73,8 @@ echo "...cloning repo"
 cd /root
 git clone https://github.com/kevincloud/javaperks-aws-single-server.git
 
-chmod +x /root/hashistack-workshop/infrastructure/aws-mini/scripts/build.sh
+chmod +x /root/javaperks-aws-single-server/scripts/build.sh
 
 echo "Preparation done."
 
-. /root/hashistack-workshop/infrastructure/aws-mini/scripts/build.sh
+. /root/javaperks-aws-single-server/scripts/build.sh

@@ -491,109 +491,22 @@ curl \
 
 # Create mysql database
 echo "Creating database..."
-python3 /root/hashistack-workshop/apis/scripts/create_db.py customer-db.service.us-east-1.consul $MYSQL_USER $MYSQL_PASS $VAULT_TOKEN $REGION
+python3 /root/javaperks-aws-single-server/scripts/create_db.py customer-db.service.us-east-1.consul $MYSQL_USER $MYSQL_PASS $VAULT_TOKEN $REGION
 
 # load product data
 echo "Loading product data..."
-python3 /root/hashistack-workshop/apis/scripts/product_load.py
-
-#################################
-# build authapi
-#################################
-# echo "Building authapi..."
-# curl -O https://dl.google.com/go/go1.12.7.linux-amd64.tar.gz
-# tar xvf go1.12.7.linux-amd64.tar.gz > /dev/null 2>&1
-# chown -R root:root ./go
-# mv go /usr/local
-# mkdir /root/go
-# mkdir /root/go/.cache
-# export GOPATH=/root/go
-# export GOCACHE=/root/go/.cache
-# export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-# rm -rf go1.12.7.linux-amd64.tar.gz
-
-# cd /root/components
-# git clone https://github.com/kevincloud/javaperks-auth-api.git
-# cd javaperks-auth-api
-# go get
-# go build -v
-# aws s3 cp /root/components/javaperks-auth-api/javaperks-auth-api s3://$S3_BUCKET/bin/authapi
+python3 /root/javaperks-aws-single-server/scripts/product_load.py $TABLE_PRODUCT $REGION
 
 
 #################################
-# create product-app image
+# upload product-app images
 #################################
 # echo "Building productapi..."
 cd /root/components
 git clone https://github.com/kevincloud/javaperks-product-api.git
 cd javaperks-product-api
-# docker build -t product-app:product-app .
-# aws ecr get-login --region $REGION --no-include-email > login.sh
-# chmod a+x login.sh
-# ./login.sh
-# docker tag product-app:product-app $REPO_URL_PROD:product-app
-# docker push $REPO_URL_PROD:product-app
 # Upload images to S3
 aws s3 cp /root/components/javaperks-product-api/images/ s3://$S3_BUCKET/images/ --recursive --acl public-read
-
-#################################
-# create cart-app image
-#################################
-# echo "Building cartapi..."
-# cd /root/components
-# git clone https://github.com/kevincloud/javaperks-cart-api.git
-# cd javaperks-cart-api
-# docker build -t cart-app:cart-app .
-# aws ecr get-login --region $REGION --no-include-email > login.sh
-# chmod a+x login.sh
-# ./login.sh
-# docker tag cart-app:cart-app $REPO_URL_CART:cart-app
-# docker push $REPO_URL_CART:cart-app
-
-#################################
-# create order-app image
-#################################
-# echo "Building orderapi..."
-# cd /root/components
-# git clone https://github.com/kevincloud/javaperks-order-api.git
-# cd javaperks-order-api
-# docker build -t order-app:order-app .
-# aws ecr get-login --region $REGION --no-include-email > login.sh
-# chmod a+x login.sh
-# ./login.sh
-# docker tag order-app:order-app $REPO_URL_ORDR:order-app
-# docker push $REPO_URL_ORDR:order-app
-
-#################################
-# create customer-api jar
-#################################
-# echo "Building customerapi..."
-# cd /root/components
-# git clone https://github.com/kevincloud/javaperks-customer-api.git
-# cd javaperks-customer-api
-# mvn package
-# aws s3 cp /root/components/javaperks-customer-api/target/CustomerApi-0.1.0-SNAPSHOT.jar s3://$S3_BUCKET/jars/CustomerApi-0.1.0-SNAPSHOT.jar
-
-#################################
-# create online-site image
-#################################
-# echo "Building online-store..."
-# cd /root/components
-# git clone https://github.com/kevincloud/javaperks-online-store.git
-# cd javaperks-online-store
-# sudo bash -c "cat >./site/framework/config.php" <<EOF
-# <?php
-# \$assetbucket = "https://s3.amazonaws.com/$S3_BUCKET/";
-# \$region = "$REGION";
-# ?>
-# EOF
-
-# docker build -t online-store:online-store .
-# aws ecr get-login --region $REGION --no-include-email > login.sh
-# chmod a+x login.sh
-# ./login.sh
-# docker tag online-store:online-store $REPO_URL_SITE:online-store
-# docker push $REPO_URL_SITE:online-store
 
 #################################
 # create nomad jobs
