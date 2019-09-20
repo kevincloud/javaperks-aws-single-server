@@ -483,7 +483,7 @@ curl \
     #     "ID": "sqlsvc",
     #     "Name": "Port Accessibility",
     #     "DeregisterCriticalServiceAfter": "10m",
-    #     "TCP": "customer-db.service.us-east-1.consul:3306",
+    #     "TCP": "customer-db.service.$REGION.consul:3306",
     #     "Interval": "10s",
     #     "TTL": "15s",
     #     "TLSSkipVerify": true
@@ -491,7 +491,7 @@ curl \
 
 # Create mysql database
 echo "Creating database..."
-python3 /root/javaperks-aws-single-server/scripts/create_db.py customer-db.service.us-east-1.consul $MYSQL_USER $MYSQL_PASS $VAULT_TOKEN $REGION
+python3 /root/javaperks-aws-single-server/scripts/create_db.py customer-db.service.$REGION.consul $MYSQL_USER $MYSQL_PASS $VAULT_TOKEN $REGION
 
 # load product data
 echo "Loading product data..."

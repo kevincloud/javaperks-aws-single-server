@@ -1,7 +1,7 @@
 provider "aws" {
     access_key = "${var.aws_access_key}"
     secret_key = "${var.aws_secret_key}"
-    region = "us-east-1"
+    region = "${var.aws_region}"
 }
 
 resource "aws_vpc" "primary-vpc" {
@@ -24,7 +24,7 @@ resource "aws_internet_gateway" "igw" {
 resource "aws_subnet" "public-subnet" {
     vpc_id = "${aws_vpc.primary-vpc.id}"
     cidr_block = "10.0.1.0/24"
-    availability_zone = "us-east-1a"
+    availability_zone = "${var.aws_region}a"
     map_public_ip_on_launch = true
     depends_on = ["aws_internet_gateway.igw"]
 
@@ -36,7 +36,7 @@ resource "aws_subnet" "public-subnet" {
 resource "aws_subnet" "private-subnet" {
     vpc_id = "${aws_vpc.primary-vpc.id}"
     cidr_block = "10.0.2.0/24"
-    availability_zone = "us-east-1b"
+    availability_zone = "${var.aws_region}b"
 
     tags = {
         Name = "javaperks-private-subnet-1-${var.unit_prefix}"
@@ -46,7 +46,7 @@ resource "aws_subnet" "private-subnet" {
 resource "aws_subnet" "private-subnet-2" {
     vpc_id = "${aws_vpc.primary-vpc.id}"
     cidr_block = "10.0.3.0/24"
-    availability_zone = "us-east-1c"
+    availability_zone = "${var.aws_region}c"
 
     tags = {
         Name = "javaperks-private-subnet-2-${var.unit_prefix}"
