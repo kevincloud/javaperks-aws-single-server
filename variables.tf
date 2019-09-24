@@ -30,10 +30,6 @@ variable "mysql_database" {
     description = "Name of database for Java Perks"
 }
 
-variable "root_pass" {
-    description = "Root password for working vm"
-}
-
 variable "instance_size" {
     description = "Size of instance for most servers"
 }

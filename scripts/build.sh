@@ -659,7 +659,7 @@ sudo bash -c "cat >/root/jobs/customer-api-job.nomad" <<EOF
                 }],
                 "Resources": {
                     "CPU": 100,
-                    "MemoryMB": 128,
+                    "MemoryMB": 256,
                     "Networks": [{
                         "MBits": 1,
                         "ReservedPorts": [
