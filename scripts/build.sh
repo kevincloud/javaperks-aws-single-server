@@ -585,11 +585,12 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
             "Tasks": [{
                 "Name": "product-api",
                 "Driver": "docker",
+                "Count": 3,
                 "Vault": {
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-product-api:latest",
+                    "image": "jubican/javaperks-product-api:1.0.0",
                     "port_map": [{
                         "http": 5821
                     }]
@@ -616,7 +617,15 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                     "Name": "product-api",
                     "PortLabel": "http"
                 }]
-            }]
+            }],
+            "Update": {
+                "MaxParallel": 3,
+                "MinHealthyTime": 10000000000,
+                "HealthyDeadline": 180000000000,
+                "AutoRevert": false,
+                "AutoPromote": false,
+                "Canary": 1
+            }
         }]
     }
 }
@@ -646,7 +655,7 @@ sudo bash -c "cat >/root/jobs/customer-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "jar_path": "local/javaperks-customer-api-0.1.0.jar",
+                    "jar_path": "local/javaperks-customer-api-0.2.0.jar",
                     "args": [ "server", "local/config.yml" ]
                 },
                 "Artifacts": [{
