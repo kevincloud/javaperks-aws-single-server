@@ -4,10 +4,10 @@ resource "aws_dynamodb_table" "db-instance-table" {
     read_capacity = 20
     write_capacity = 20
     hash_key = "ListType"
-    sort_key = "MachineType"
+    range_key = "MachineType"
     
     attribute {
-        name = "OrderId"
+        name = "ListType"
         type = "S"
     }
     

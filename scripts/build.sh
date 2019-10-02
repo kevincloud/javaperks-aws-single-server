@@ -277,7 +277,7 @@ curl \
 curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data "{\"data\": { \"aws_access_key\": \"$AWS_ACCESS_KEY\", \"aws_secret_key\": \"$AWS_SECRET_KEY\" } }" \
+    --data "{\"data\": { \"aws_access_key\": \"$AWS_ACCESS_KEY\", \"aws_secret_key\": \"$AWS_SECRET_KEY\", \"aws_region\": \"$REGION\" } }" \
     http://127.0.0.1:8200/v1/secret/data/aws
 
 curl \
@@ -590,7 +590,7 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-product-api:1.0.0",
+                    "image": "jubican/javaperks-product-api:latest",
                     "port_map": [{
                         "http": 5821
                     }]
@@ -659,7 +659,7 @@ sudo bash -c "cat >/root/jobs/customer-api-job.nomad" <<EOF
                     "args": [ "server", "local/config.yml" ]
                 },
                 "Artifacts": [{
-                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/jars/javaperks-customer-api-0.1.0.jar",
+                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/jars/javaperks-customer-api-0.2.0.jar",
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
