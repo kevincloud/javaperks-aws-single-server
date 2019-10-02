@@ -24,6 +24,6 @@ resource "aws_dynamodb_table" "customer-order-table" {
     }
 
     tags = {
-        Name = "customer-orders"
+        Name = "customer-orders-${var.unit_prefix}"
     }
 }

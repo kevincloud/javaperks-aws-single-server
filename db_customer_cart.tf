@@ -33,6 +33,6 @@ resource "aws_dynamodb_table" "customer-cart" {
     # }
 
     tags = {
-        Name = "cust-cart-data"
+        Name = "customer-cart-${var.unit_prefix}"
     }
 }

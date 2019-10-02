@@ -17,6 +17,6 @@ resource "aws_dynamodb_table" "product-data-table" {
     }
 
     tags = {
-        Name = "product-data"
+        Name = "product-main-${var.unit_prefix}"
     }
 }
