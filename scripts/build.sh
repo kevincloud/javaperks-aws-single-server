@@ -179,7 +179,7 @@ EOF
 
 sudo bash -c "cat >/etc/vault.d/access-creds.json" <<EOF
 {
-    "policy": "path \"secret/data/aws\" {\n  capabilities = [\"read\", \"list\"]\n}\n\npath \"secret/data/roottoken\" {\n  capabilities = [\"read\", \"list\"]\n}\n"
+    "policy": "path \"secret/data/aws\" {\n  capabilities = [\"read\", \"list\"]\n}\n\npath \"secret/data/roottoken\" {\n  capabilities = [\"read\", \"list\"]\n}\n\npath \"custdbcreds/creds/cust-api-role\" {\n    capabilities = [\"list\", \"read\"]\n}\n"
 }
 EOF
 
@@ -197,6 +197,26 @@ EOF
 echo "Configuring Vault..."
 
 # vault secrets enable -path=usercreds -version=2 kv
+
+# Enable dynamic database creds
+curl \
+    --header "X-Vault-Token: $VAULT_TOKEN" \
+    --request POST \
+    --data '{"type": "database" }' \
+    http://127.0.0.1:8200/v1/sys/mounts/custdbcreds
+
+# Configure connection
+curl \
+    --header "X-Vault-Token: $VAULT_TOKEN" \
+    --request POST \
+    --data "{ \"plugin_name\": \"mysql-database-plugin\", \"allowed_roles\": \"cust-api-role\", \"connection_url\": \"{{username}}:{{password}}@tcp($MYSQL_HOST:3306)/\", \"username\": \"$MYSQL_USER\", \"password\": \"$MYSQL_PASS\" }" \
+    http://127.0.0.1:8200/v1/custdbcreds/config/custapidb
+
+curl \
+    --header "X-Vault-Token: $VAULT_TOKEN" \
+    --request POST \
+    --data "{ \"db_name\": \"custapidb\", \"creation_statements\": [\"CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'\", \"GRANT SELECT ON *.* TO '{{name}}'@'%'\"], \"default_ttl\": \"1h\", \"max_ttl\": \"24h\" }" \
+    http://127.0.0.1:8200/v1/custdbcreds/roles/cust-api-role
 
 # Enable secrets mount point for kv2
 curl \
