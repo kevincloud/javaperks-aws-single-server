@@ -215,7 +215,7 @@ curl \
 curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data "{ \"db_name\": \"custapidb\", \"creation_statements\": [\"CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'\", \"GRANT SELECT ON *.* TO '{{name}}'@'%'\"], \"default_ttl\": \"1h\", \"max_ttl\": \"24h\" }" \
+    --data "{ \"db_name\": \"custapidb\", \"creation_statements\": [\"CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'\", \"GRANT ALL PRIVILEGES ON *.* TO '{{name}}'@'%'\"], \"default_ttl\": \"1h\", \"max_ttl\": \"24h\" }" \
     http://127.0.0.1:8200/v1/custdbcreds/roles/cust-api-role
 
 # Enable secrets mount point for kv2
