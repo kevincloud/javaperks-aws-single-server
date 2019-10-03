@@ -675,11 +675,11 @@ sudo bash -c "cat >/root/jobs/customer-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "jar_path": "local/javaperks-customer-api-0.2.0.jar",
+                    "jar_path": "local/javaperks-customer-api-0.2.3.jar",
                     "args": [ "server", "local/config.yml" ]
                 },
                 "Artifacts": [{
-                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/jars/javaperks-customer-api-0.2.0.jar",
+                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/jars/javaperks-customer-api-0.2.3.jar",
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
