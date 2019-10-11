@@ -610,14 +610,14 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
             "Tasks": [{
                 "Name": "product-api",
                 "Driver": "docker",
-                "Count": 3,
+                "Count": 1,
                 "Vault": {
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-product-api:1.1.0",
+                    "image": "jubican/javaperks-product-api:1.1.3",
                     "port_map": [{
-                        "http": 5821
+                        "svc": 5821
                     }]
                 },
                 "Templates": [{
@@ -632,7 +632,7 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                         "MBits": 1,
                         "ReservedPorts": [
                             {
-                                "Label": "http",
+                                "Label": "svc",
                                 "Value": 5821
                             }
                         ]
@@ -640,7 +640,7 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                 },
                 "Services": [{
                     "Name": "product-api",
-                    "PortLabel": "http"
+                    "PortLabel": "svc"
                 }]
             }],
             "Update": {
