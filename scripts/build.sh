@@ -196,7 +196,12 @@ EOF
 
 echo "Configuring Vault..."
 
-# vault secrets enable -path=usercreds -version=2 kv
+# Enable auditing
+curl \
+    --header "X-Vault-Token: $VAULT_TOKEN" \
+    --request PUT \
+    --data "{ \"descriptiopn\": \"Primary Audit\", \"type\": \"file\", \"options\": { \"file_path\": \"/var/log/vault/log\" } }" \
+    http://127.0.0.1:8200/v1/sys/audit/main-audit
 
 # Enable dynamic database creds
 curl \
@@ -572,7 +577,7 @@ sudo bash -c "cat >/root/jobs/auth-api-job.nomad" <<EOF
                 }],
                 "Resources": {
                     "CPU": 100,
-                    "MemoryMB": 128,
+                    "MemoryMB": 32,
                     "Networks": [{
                         "MBits": 1,
                         "ReservedPorts": [
@@ -610,7 +615,7 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-product-api:latest",
+                    "image": "jubican/javaperks-product-api:1.1.0",
                     "port_map": [{
                         "http": 5821
                     }]
@@ -622,7 +627,7 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                 }],
                 "Resources": {
                     "CPU": 100,
-                    "MemoryMB": 128,
+                    "MemoryMB": 80,
                     "Networks": [{
                         "MBits": 1,
                         "ReservedPorts": [
@@ -675,11 +680,11 @@ sudo bash -c "cat >/root/jobs/customer-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "jar_path": "local/javaperks-customer-api-0.2.4.jar",
+                    "jar_path": "local/javaperks-customer-api-0.2.6.jar",
                     "args": [ "server", "local/config.yml" ]
                 },
                 "Artifacts": [{
-                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/jars/javaperks-customer-api-0.2.4.jar",
+                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/jars/javaperks-customer-api-0.2.6.jar",
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
@@ -738,7 +743,7 @@ sudo bash -c "cat >/root/jobs/cart-api-job.nomad" <<EOF
                 }],
                 "Resources": {
                     "CPU": 100,
-                    "MemoryMB": 128,
+                    "MemoryMB": 64,
                     "Networks": [{
                         "MBits": 1,
                         "ReservedPorts": [
@@ -796,7 +801,7 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                 }],
                 "Resources": {
                     "CPU": 100,
-                    "MemoryMB": 128,
+                    "MemoryMB": 80,
                     "Networks": [{
                         "MBits": 1,
                         "ReservedPorts": [
@@ -846,7 +851,7 @@ sudo bash -c "cat >/root/jobs/online-store-job.nomad" <<EOF
                 }],
                 "Resources": {
                     "CPU": 100,
-                    "MemoryMB": 128,
+                    "MemoryMB": 64,
                     "Networks": [{
                         "MBits": 1,
                         "ReservedPorts": [
@@ -897,6 +902,28 @@ curl \
     --request POST \
     --data @/root/jobs/customer-api-job.nomad \
     http://nomad-server.service.$REGION.consul:4646/v1/jobs
+
+echo "Creating Consul intentions..."
+
+curl \
+    --request POST \
+    --data "{ \"SourceName\": \"customer-api\", \"DestinationName\": \"customer-db\", \"SourceType\": \"consul\", \"Action\": \"allow\" }" \
+    http://127.0.0.1:8500/v1/connect/intentions
+
+curl \
+    --request POST \
+    --data "{ \"SourceName\": \"online-store\", \"DestinationName\": \"customer-api\", \"SourceType\": \"consul\", \"Action\": \"allow\" }" \
+    http://127.0.0.1:8500/v1/connect/intentions
+
+curl \
+    --request POST \
+    --data "{ \"SourceName\": \"*\", \"DestinationName\": \"customer-db\", \"SourceType\": \"consul\", \"Action\": \"deny\" }" \
+    http://127.0.0.1:8500/v1/connect/intentions
+
+curl \
+    --request POST \
+    --data "{ \"SourceName\": \"*\", \"DestinationName\": \"customer-api\", \"SourceType\": \"consul\", \"Action\": \"deny\" }" \
+    http://127.0.0.1:8500/v1/connect/intentions
 
 
 echo "Javaperks Application complete."
