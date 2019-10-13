@@ -27,8 +27,10 @@ mkdir -p /etc/nomad.d
 mkdir -p /etc/docker
 mkdir -p /opt/vault
 mkdir -p /opt/consul
+mkdir -p /var/run/consul
 mkdir -p /opt/nomad
 mkdir -p /opt/nomad/plugins
+mkdir -p /opt/fabio/bin
 
 echo "...setting AWS credentials"
 sudo bash -c "cat >/root/.aws/config" << 'EOF'
@@ -58,6 +60,7 @@ export CONSUL_URL="${CONSUL_URL}"
 export CONSUL_LICENSE="${CONSUL_LICENSE}"
 export CONSUL_JOIN_KEY="${CONSUL_JOIN_KEY}"
 export CONSUL_JOIN_VALUE="${CONSUL_JOIN_VALUE}"
+export FABIO_URL="${FABIO_URL}"
 export NOMAD_URL="${NOMAD_URL}"
 export TABLE_PRODUCT="${TABLE_PRODUCT}"
 export TABLE_CART="${TABLE_CART}"

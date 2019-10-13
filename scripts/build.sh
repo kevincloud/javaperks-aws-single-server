@@ -6,6 +6,13 @@ curl -sfLo "consul.zip" "${CONSUL_URL}"
 sudo unzip consul.zip -d /usr/local/bin/
 rm -rf consul.zip
 
+export CONSUL_KEY=`consul keygen`
+export CONSUL_TOKEN=`uuidgen`
+
+chown -R consul:consul /usr/local/bin/consul
+chown -R consul:consul /etc/consul.d/
+chown -R consul:consul /var/run/consul/
+
 # Server configuration
 sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
 {
@@ -22,6 +29,12 @@ sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
     "retry_join": ["provider=aws tag_key=${CONSUL_JOIN_KEY} tag_value=${CONSUL_JOIN_VALUE}"],
     "ui": true,
     "recursors": ["169.254.169.253"]
+    "encrypt": "$CONSUL_KEY",
+    "acl_datacenter": "us-east-1",
+    "acl_down_policy": "extend-cache",
+    "acl_default_policy": "allow",
+    "acl_down_policy": "allow",
+    "acl_master_token": "$CONSUL_TOKEN"
 }
 EOF
 
@@ -34,11 +47,10 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
-User=root
-Group=root
+User=consul
+Group=consul
 PIDFile=/var/run/consul/consul.pid
 PermissionsStartOnly=true
-ExecStartPre=-/bin/mkdir -p /var/run/consul
 ExecStart=/usr/local/bin/consul agent -config-dir=/etc/consul.d -pid-file=/var/run/consul/consul.pid
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
@@ -97,6 +109,62 @@ service consul stop
 service consul start
 
 sleep 3
+
+echo "Install fabiolb..."
+
+useradd -M -d /opt/fabio -s /sbin/nologin fabio
+
+curl -sfLo "/opt/fabio/bin/fabio" "${FABIO_URL}"
+chmod +x /opt/fabio/bin/fabio
+chown -R fabio:fabio /opt/fabio
+
+sudo bash -c "cat >>/etc/dnsmasq.conf" <<EOF
+proxy.addr = :9999
+proxy.header.tls = Strict-Transport-Security
+proxy.header.tls.value = "max-age=63072000; includeSubDomains"
+ui.addr = ${CLIENT_IP}:9998
+ui.access = ro
+runtime.gogc = 800
+log.access.target = stdout
+log.access.format =  - - [] ""   ".Referer" ".User-Agent" "" "" "" ""
+log.access.level = INFO
+registry.consul.addr = ${CLIENT_IP}:8500
+proxy.maxconn = 20000
+EOF
+
+sudo bash -c "/etc/systemd/system/fabio.service" <<EOF
+[Unit]
+Description=Fabio Proxy
+After=syslog.target
+After=network.target
+ 
+[Service]
+LimitMEMLOCK=infinity
+LimitNOFILE=65535
+Type=simple
+WorkingDirectory=/opt/fabio
+Restart=always
+ExecStart=/opt/fabio/bin/fabio -cfg fabio.properties
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=fabio
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=yes
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+ 
+# Unprivileged user
+User=fabio
+Group=fabio
+ 
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable fabio.service
+systemctl start fabio.service
 
 
 echo "Consul installation complete."
