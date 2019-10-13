@@ -46,6 +46,10 @@ variable "nomad_dl_url" {
     description = "URL for downloading Nomad"
 }
 
+variable "fabio_dl_url" {
+    description = "URL for downloading Fabio"
+}
+
 variable "consul_license_key" {
     description = "License key for Consul Enterprise"
 }
