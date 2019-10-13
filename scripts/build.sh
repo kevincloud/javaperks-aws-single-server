@@ -9,6 +9,11 @@ rm -rf consul.zip
 export CONSUL_KEY=`consul keygen`
 export CONSUL_TOKEN=`uuidgen`
 
+echo "Add Consul user..."
+groupadd consul
+useradd consul -g consul
+
+echo "Update Consul permissions..."
 chown -R consul:consul /usr/local/bin/consul
 chown -R consul:consul /etc/consul.d/
 chown -R consul:consul /var/run/consul/
