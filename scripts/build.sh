@@ -13,11 +13,6 @@ echo "Add Consul user..."
 groupadd consul
 useradd consul -g consul
 
-echo "Update Consul permissions..."
-chown -R consul:consul /usr/local/bin/consul
-chown -R consul:consul /etc/consul.d/
-chown -R consul:consul /var/run/consul/
-
 # Server configuration
 sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
 {
@@ -67,6 +62,13 @@ RestartSec=42s
 WantedBy=multi-user.target
 EOF
 
+echo "Update Consul permissions..."
+chown -R consul:consul /usr/local/bin/consul
+chown -R consul:consul /etc/consul.d/
+chown -R consul:consul /opt/consul/
+chown -R consul:consul /var/run/consul/
+
+echo "Start service..."
 sudo systemctl start consul
 sudo systemctl enable consul
 
@@ -115,15 +117,16 @@ service consul start
 
 sleep 3
 
-echo "Install fabiolb..."
+echo "Installing fabiolb..."
 
+echo "Add FabioLb user..."
 useradd -M -d /opt/fabio -s /sbin/nologin fabio
 
 curl -sfLo "/opt/fabio/bin/fabio" "${FABIO_URL}"
 chmod +x /opt/fabio/bin/fabio
 chown -R fabio:fabio /opt/fabio
 
-sudo bash -c "cat >>/etc/dnsmasq.conf" <<EOF
+sudo bash -c "cat >>/opt/fabio/fabio.properties" <<EOF
 proxy.addr = :9999
 proxy.header.tls = Strict-Transport-Security
 proxy.header.tls.value = "max-age=63072000; includeSubDomains"
@@ -167,6 +170,8 @@ Group=fabio
 [Install]
 WantedBy=multi-user.target
 EOF
+
+chown -R fabio:fabio /opt/fabio
 
 systemctl enable fabio.service
 systemctl start fabio.service
