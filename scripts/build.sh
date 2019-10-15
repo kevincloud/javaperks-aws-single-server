@@ -200,7 +200,7 @@ service nginx reload
 # echo "Add FabioLb user..."
 # useradd -M -d /opt/fabio -s /sbin/nologin fabio
 
-# curl -sfLo "/opt/fabio/bin/fabio" "${FABIO_URL}"
+# curl -sfLo "/opt/fabio/bin/fabio" "${xxFABIO_URLxx}"
 # chmod +x /opt/fabio/bin/fabio
 # chown -R fabio:fabio /opt/fabio
 
