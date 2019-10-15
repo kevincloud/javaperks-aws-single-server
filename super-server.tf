@@ -18,7 +18,8 @@ data "template_file" "hashi-server-setup" {
         CONSUL_JOIN_KEY = "${var.consul_join_key}"
         CONSUL_JOIN_VALUE = "${var.consul_join_value}"
         NOMAD_URL = "${var.nomad_dl_url}"
-        FABIO_URL = "${var.fabio_dl_url}"
+        # FABIO_URL = "${var.fabio_dl_url}"
+        CTEMPLATE_URL = "${var.ctemplate_dl_url}"
         TABLE_PRODUCT = "${aws_dynamodb_table.product-data-table.id}"
         TABLE_CART = "${aws_dynamodb_table.customer-cart.id}"
         TABLE_ORDER = "${aws_dynamodb_table.customer-order-table.id}"
@@ -161,12 +162,12 @@ resource "aws_security_group" "hashi-server-sg" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-    ingress {
-        from_port = 9998
-        to_port = 9999
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+    # ingress {
+    #     from_port = 9998
+    #     to_port = 9999
+    #     protocol = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    # }
 
     ingress {
         from_port = 0

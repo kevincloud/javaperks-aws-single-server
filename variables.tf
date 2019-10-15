@@ -50,6 +50,10 @@ variable "fabio_dl_url" {
     description = "URL for downloading Fabio"
 }
 
+variable "ctemplate_dl_url" {
+    description = "URL for downloading Consul Template"
+}
+
 variable "consul_license_key" {
     description = "License key for Consul Enterprise"
 }

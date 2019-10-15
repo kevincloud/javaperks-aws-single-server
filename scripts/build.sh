@@ -51,7 +51,7 @@ User=consul
 Group=consul
 PIDFile=/var/run/consul/consul.pid
 PermissionsStartOnly=true
-ExecStart=/usr/local/bin/consul agent -config-dir=/etc/consul.d -pid-file=/var/run/consul/consul.pid
+ExecStart=/usr/local/bin/consul agent -config-file=/etc/consul.d/consul-server.json -pid-file=/var/run/consul/consul.pid
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 KillSignal=SIGTERM
@@ -95,7 +95,7 @@ ip link set dev dummy0 up
 ip addr add 169.254.1.1/32 dev dummy0
 ip link set dev dummy0 up
 
-sudo bash -c "cat >>//etc/systemd/network/dummy0.netdev" <<EOF
+sudo bash -c "cat >>/etc/systemd/network/dummy0.netdev" <<EOF
 [NetDev]
 Name=dummy0
 Kind=dummy
@@ -117,64 +117,142 @@ service consul start
 
 sleep 3
 
-echo "Installing fabiolb..."
+echo "Installing Consul Template..."
 
-echo "Add FabioLb user..."
-useradd -M -d /opt/fabio -s /sbin/nologin fabio
+curl -sfLo "consul-template.zip" "${CTEMPLATE_URL}"
+sudo unzip consul-template.zip -d /usr/local/bin/
 
-curl -sfLo "/opt/fabio/bin/fabio" "${FABIO_URL}"
-chmod +x /opt/fabio/bin/fabio
-chown -R fabio:fabio /opt/fabio
+sudo bash -c "cat >>/etc/consul.d/consul-template-config.hcl" <<EOF
+consul {
+    address = "${CLIENT_IP}:8500"
 
-sudo bash -c "cat >>/opt/fabio/fabio.properties" <<EOF
-proxy.addr = :9999
-proxy.header.tls = Strict-Transport-Security
-proxy.header.tls.value = "max-age=63072000; includeSubDomains"
-ui.addr = ${CLIENT_IP}:9998
-ui.access = ro
-runtime.gogc = 800
-log.access.target = stdout
-log.access.format =  - - [] ""   ".Referer" ".User-Agent" "" "" "" ""
-log.access.level = INFO
-registry.consul.addr = ${CLIENT_IP}:8500
-proxy.maxconn = 20000
+    retry {
+        enabled = true
+        attempts = 12
+        backoff = "250ms"
+    }
+
+    ssl {
+        enabled = false
+        verify = false
+    }
+
+    template {
+        source      = "/etc/nginx/conf.d/lb-product-api.conf.ctmpl"
+        destination = "/etc/nginx/conf.d/lb-product-api.conf"
+        perms = 0600
+        command = "service nginx reload"
+    }
+}
 EOF
 
-sudo bash -c "/etc/systemd/system/fabio.service" <<EOF
+# Set Consul Template up as a systemd service
+echo "Installing systemd service for Consul..."
+sudo bash -c "cat >/etc/systemd/system/consul-template.service" <<EOF
 [Unit]
-Description=Fabio Proxy
-After=syslog.target
-After=network.target
- 
+Description=Hashicorp Consul Template
+Requires=network-online.target
+After=network-online.target
+
 [Service]
-LimitMEMLOCK=infinity
-LimitNOFILE=65535
-Type=simple
-WorkingDirectory=/opt/fabio
-Restart=always
-ExecStart=/opt/fabio/bin/fabio -cfg fabio.properties
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=fabio
-PrivateDevices=yes
-PrivateTmp=yes
-ProtectSystem=full
-ProtectHome=yes
-AmbientCapabilities=CAP_NET_BIND_SERVICE
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
- 
-# Unprivileged user
-User=fabio
-Group=fabio
- 
+User=consul
+Group=consul
+PIDFile=/var/run/consul/consul-template.pid
+PermissionsStartOnly=true
+ExecStart=/usr/local/bin/consul-template -config=/etc/consul.d/consul-template-config.hcl -pid-file=/var/run/consul/consul-template.pid
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+KillSignal=SIGTERM
+Restart=on-failure
+RestartSec=42s
+
 [Install]
 WantedBy=multi-user.target
 EOF
 
-chown -R fabio:fabio /opt/fabio
+echo "Start service..."
+sudo systemctl start consul
+sudo systemctl enable consul
 
-systemctl enable fabio.service
-systemctl start fabio.service
+# Configure the load balancer for "product-api"
+sudo bash -c "cat >>/etc/nginx/conf.d/lb-product-api.conf.ctmpl" <<EOF
+upstream backend {
+{{ range service "product-api" }}
+    server {{ .Address }}:{{ .Port }};
+{{ end }}
+}
+
+server {
+   listen 5821;
+
+   location / {
+      proxy_pass http://backend;
+   }
+}
+EOF
+
+# remove default website files from nginx
+rm -rf /etc/nginx/sites-enabled/*
+service nginx reload
+
+# echo "Installing fabiolb..."
+
+# echo "Add FabioLb user..."
+# useradd -M -d /opt/fabio -s /sbin/nologin fabio
+
+# curl -sfLo "/opt/fabio/bin/fabio" "${FABIO_URL}"
+# chmod +x /opt/fabio/bin/fabio
+# chown -R fabio:fabio /opt/fabio
+
+# sudo bash -c "cat >>/opt/fabio/fabio.properties" <<EOF
+# proxy.addr = :9999
+# proxy.header.tls = Strict-Transport-Security
+# proxy.header.tls.value = "max-age=63072000; includeSubDomains"
+# ui.addr = ${CLIENT_IP}:9998
+# ui.access = ro
+# runtime.gogc = 800
+# log.access.target = stdout
+# log.access.format =  - - [] ""   ".Referer" ".User-Agent" "" "" "" ""
+# log.access.level = INFO
+# registry.consul.addr = ${CLIENT_IP}:8500
+# proxy.maxconn = 20000
+# EOF
+
+# sudo bash -c "cat >>/etc/systemd/system/fabio.service" <<EOF
+# [Unit]
+# Description=Fabio Proxy
+# After=syslog.target
+# After=network.target
+ 
+# [Service]
+# LimitMEMLOCK=infinity
+# LimitNOFILE=65535
+# Type=simple
+# WorkingDirectory=/opt/fabio
+# Restart=always
+# ExecStart=/opt/fabio/bin/fabio -cfg fabio.properties
+# StandardOutput=syslog
+# StandardError=syslog
+# SyslogIdentifier=fabio
+# PrivateDevices=yes
+# PrivateTmp=yes
+# ProtectSystem=full
+# ProtectHome=yes
+# AmbientCapabilities=CAP_NET_BIND_SERVICE
+# RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+ 
+# # Unprivileged user
+# User=fabio
+# Group=fabio
+ 
+# [Install]
+# WantedBy=multi-user.target
+# EOF
+
+# chown -R fabio:fabio /opt/fabio
+
+# systemctl enable fabio.service
+# systemctl start fabio.service
 
 
 echo "Consul installation complete."
@@ -688,7 +766,7 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
             "Tasks": [{
                 "Name": "product-api",
                 "Driver": "docker",
-                "Count": 1,
+                "Count": 3,
                 "Vault": {
                     "Policies": ["access-creds"]
                 },
@@ -708,10 +786,10 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
                     "MemoryMB": 80,
                     "Networks": [{
                         "MBits": 1,
-                        "ReservedPorts": [
+                        "DynamicPorts": [
                             {
                                 "Label": "svc",
-                                "Value": 5821
+                                "Value": 0
                             }
                         ]
                     }]
