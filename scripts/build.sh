@@ -203,6 +203,10 @@ echo "Start service..."
 sudo systemctl enable consul-template
 sudo systemctl start consul-template
 
+sleep 5
+
+service nginx reload
+
 echo "Consul installation complete."
 
 # Configures the Vault server for a database secrets demo
@@ -711,10 +715,10 @@ sudo bash -c "cat >/root/jobs/product-api-job.nomad" <<EOF
         "Datacenters": ["$REGION"],
         "TaskGroups": [{
             "Name": "product-api-group",
+            "Count": 3,
             "Tasks": [{
                 "Name": "product-api",
                 "Driver": "docker",
-                "Count": 3,
                 "Vault": {
                     "Policies": ["access-creds"]
                 },
