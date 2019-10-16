@@ -940,7 +940,7 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-order-api:1.1.0",
+                    "image": "jubican/javaperks-order-api:1.1.1",
                     "port_map": [{
                         "http": 0
                     }]
