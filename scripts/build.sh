@@ -18,7 +18,7 @@ sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
 {
     "data_dir": "/opt/consul",
     "datacenter": "${REGION}",
-    "node_name": "consult-server",
+    "node_name": "consul-server",
     "client_addr": "0.0.0.0",
     "bind_addr": "0.0.0.0",
     "advertise_addr": "${CLIENT_IP}",
@@ -634,7 +634,7 @@ cd /root
 mkdir /root/components
 
 echo "Get Consul node id..."
-export CONSUL_NODE_ID=$(curl -s http://127.0.0.1:8500/v1/catalog/node/consul-client1 | jq -r .Node.ID)
+export CONSUL_NODE_ID=$(curl -s http://127.0.0.1:8500/v1/catalog/node/consul-server | jq -r .Node.ID)
 
 echo "Enable transit engine..."
 # enable transit
@@ -660,7 +660,7 @@ curl \
 echo "Registering customer-db with consul..."
 curl \
     --request PUT \
-    --data "{ \"Datacenter\": \"$REGION\", \"Node\": \"$CONSUL_NODE_ID\", \"Address\":\"$MYSQL_HOST\", \"Service\": { \"ID\": \"customer-db\", \"Service\": \"customer-db\", \"Address\": \"$MYSQL_HOST\", \"Port\": 3306 }, \"Checks\": [{ \"ID\": \"sqlsvc\", \"Name\": \"Port Accessibility\", \"DeregisterCriticalServiceAfter\": \"10m\", \"TCP\": \"customer-db.service.$REGION.consul:3306\", \"Interval\": \"10s\", \"TTL\": \"15s\", \"TLSSkipVerify\": true }] }" \
+    --data "{ \"Datacenter\": \"$REGION\", \"Node\": \"$CONSUL_NODE_ID\", \"Address\":\"$MYSQL_HOST\", \"Service\": { \"ID\": \"customer-db\", \"Service\": \"customer-db\", \"Address\": \"$MYSQL_HOST\", \"Port\": 3306 } }" \
     http://127.0.0.1:8500/v1/catalog/register
 
 # "Checks": [{ "ID": "sqlsvc", "Name": "Port Accessibility", "DeregisterCriticalServiceAfter": "10m", "TCP": "customer-db.service.$REGION.consul:3306", "Interval": "10s", "TTL": "15s", "TLSSkipVerify": true }]
@@ -942,7 +942,7 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                 "Config": {
                     "image": "jubican/javaperks-order-api:1.1.1",
                     "port_map": [{
-                        "http": 0
+                        "http": 80
                     }]
                 },
                 "Templates": [{
@@ -1092,6 +1092,8 @@ curl \
     http://127.0.0.1:8500/v1/connect/intentions
 
 # now that the services are running, need to reload nginx config
+service consul-template stop
+service consul-template start
 service nginx reload
 
 # all done!
