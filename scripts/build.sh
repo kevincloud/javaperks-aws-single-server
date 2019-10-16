@@ -134,6 +134,40 @@ server {
 }
 EOF
 
+# Configure the load balancer for "cart-api"
+sudo bash -c "cat >>/etc/nginx/conf.d/lb-cart-api.conf.ctmpl" <<EOF
+upstream backend {
+{{ range service "cart-api" }}
+    server {{ .Address }}:{{ .Port }};
+{{ end }}
+}
+
+server {
+   listen 5823;
+
+   location / {
+      proxy_pass                  http://backend;
+   }
+}
+EOF
+
+# Configure the load balancer for "order-api"
+sudo bash -c "cat >>/etc/nginx/conf.d/lb-order-api.conf.ctmpl" <<EOF
+upstream backend {
+{{ range service "order-api" }}
+    server {{ .Address }}:{{ .Port }};
+{{ end }}
+}
+
+server {
+   listen 5826;
+
+   location / {
+      proxy_pass                  http://backend;
+   }
+}
+EOF
+
 # remove default website files from nginx
 rm -rf /etc/nginx/sites-enabled/*
 service nginx reload
@@ -160,7 +194,7 @@ consul {
 }
 
 vault {
-    address = "http://vault-main.service.us-east-1.consul:8200/"
+    address = "http://vault-main.service.${REGION}.consul:8200/"
     token = "${VAULT_TOKEN}"
     renew_token = false
 }
@@ -171,6 +205,27 @@ template {
     perms = 0600
     command = "service nginx reload"
 }
+
+template {
+    source      = "/etc/nginx/conf.d/lb-cart-api.conf.ctmpl"
+    destination = "/etc/nginx/conf.d/lb-cart-api.conf"
+    perms = 0600
+    command = "service nginx reload"
+}
+
+template {
+    source      = "/etc/nginx/conf.d/lb-order-api.conf.ctmpl"
+    destination = "/etc/nginx/conf.d/lb-order-api.conf"
+    perms = 0600
+    command = "service nginx reload"
+}
+
+# template {
+#     source      = "/etc/nginx/conf.d/lb-auth-api.conf.ctmpl"
+#     destination = "/etc/nginx/conf.d/lb-auth-api.conf"
+#     perms = 0600
+#     command = "service nginx reload"
+# }
 EOF
 
 # Set Consul Template up as a systemd service
@@ -202,10 +257,6 @@ chown -R consul:consul /etc/nginx/conf.d
 echo "Start service..."
 sudo systemctl enable consul-template
 sudo systemctl start consul-template
-
-sleep 5
-
-service nginx reload
 
 echo "Consul installation complete."
 
@@ -609,18 +660,10 @@ curl \
 echo "Registering customer-db with consul..."
 curl \
     --request PUT \
-    --data "{ \"Datacenter\": \"$REGION\", \"Node\": \"$CONSUL_NODE_ID\", \"Address\":\"$MYSQL_HOST\", \"Service\": { \"ID\": \"customer-db\", \"Service\": \"customer-db\", \"Address\": \"$MYSQL_HOST\", \"Port\": 3306 } }" \
+    --data "{ \"Datacenter\": \"$REGION\", \"Node\": \"$CONSUL_NODE_ID\", \"Address\":\"$MYSQL_HOST\", \"Service\": { \"ID\": \"customer-db\", \"Service\": \"customer-db\", \"Address\": \"$MYSQL_HOST\", \"Port\": 3306 }, \"Checks\": [{ \"ID\": \"sqlsvc\", \"Name\": \"Port Accessibility\", \"DeregisterCriticalServiceAfter\": \"10m\", \"TCP\": \"customer-db.service.$REGION.consul:3306\", \"Interval\": \"10s\", \"TTL\": \"15s\", \"TLSSkipVerify\": true }] }" \
     http://127.0.0.1:8500/v1/catalog/register
 
-    # "Checks": [{
-    #     "ID": "sqlsvc",
-    #     "Name": "Port Accessibility",
-    #     "DeregisterCriticalServiceAfter": "10m",
-    #     "TCP": "customer-db.service.$REGION.consul:3306",
-    #     "Interval": "10s",
-    #     "TTL": "15s",
-    #     "TLSSkipVerify": true
-    # }]
+# "Checks": [{ "ID": "sqlsvc", "Name": "Port Accessibility", "DeregisterCriticalServiceAfter": "10m", "TCP": "customer-db.service.$REGION.consul:3306", "Interval": "10s", "TTL": "15s", "TLSSkipVerify": true }]
 
 # Create mysql database
 echo "Creating database..."
@@ -839,9 +882,9 @@ sudo bash -c "cat >/root/jobs/cart-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-cart-api:latest",
+                    "image": "jubican/javaperks-cart-api:1.1.0",
                     "port_map": [{
-                        "http": 5823
+                        "http": 80
                     }]
                 },
                 "Templates": [{
@@ -854,10 +897,10 @@ sudo bash -c "cat >/root/jobs/cart-api-job.nomad" <<EOF
                     "MemoryMB": 64,
                     "Networks": [{
                         "MBits": 1,
-                        "ReservedPorts": [
+                        "DynamicPorts": [
                             {
                                 "Label": "http",
-                                "Value": 5823
+                                "Value": 0
                             }
                         ]
                     }]
@@ -897,9 +940,9 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-order-api:latest",
+                    "image": "jubican/javaperks-order-api:1.1.0",
                     "port_map": [{
-                        "http": 5826
+                        "http": 0
                     }]
                 },
                 "Templates": [{
@@ -912,17 +955,32 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                     "MemoryMB": 80,
                     "Networks": [{
                         "MBits": 1,
-                        "ReservedPorts": [
+                        "DynamicPorts": [
                             {
                                 "Label": "http",
-                                "Value": 5826
+                                "Value": 0
                             }
                         ]
                     }]
                 },
                 "Services": [{
                     "Name": "order-api",
-                    "PortLabel": "http"
+                    "PortLabel": "http",
+                    "Checks": [{
+                        "Name": "DB Check",
+                        "Type": "http",
+                        "PortLabel": "http",
+                        "Path": "/_check_ddb",
+                        "Interval": 5000000000,
+                        "Timeout": 2000000000
+                    }, {
+                        "Name": "HTTP Check",
+                        "Type": "http",
+                        "PortLabel": "http",
+                        "Path": "/_check_app",
+                        "Interval": 5000000000,
+                        "Timeout": 2000000000
+                    }]
                 }]
             }]
         }]
@@ -1033,5 +1091,8 @@ curl \
     --data "{ \"SourceName\": \"*\", \"DestinationName\": \"customer-api\", \"SourceType\": \"consul\", \"Action\": \"deny\" }" \
     http://127.0.0.1:8500/v1/connect/intentions
 
+# now that the services are running, need to reload nginx config
+service nginx reload
 
+# all done!
 echo "Javaperks Application complete."
