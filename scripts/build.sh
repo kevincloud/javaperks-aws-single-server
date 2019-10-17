@@ -170,7 +170,7 @@ EOF
 
 # remove default website files from nginx
 rm -rf /etc/nginx/sites-enabled/*
-service nginx reload
+# service nginx reload
 
 echo "Installing Consul Template..."
 
@@ -263,9 +263,9 @@ EOF
 
 chown -R consul:consul /etc/nginx/conf.d
 
-echo "Start service..."
+echo "Enable Consul Template service..."
 sudo systemctl enable consul-template
-sudo systemctl start consul-template
+# sudo systemctl start consul-template
 
 echo "Consul installation complete."
 
@@ -305,9 +305,10 @@ After=network.target
 [Service]
 Type=simple
 User=root
+Group=root
 WorkingDirectory=/root
 ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
-Restart=on-failure # or always, on-abort, etc
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
@@ -1110,11 +1111,12 @@ curl \
     http://127.0.0.1:8500/v1/connect/intentions
 
 # now that the services are running, need to reload nginx config
-service consul-template reload
+sudo service consul-template start
 
 sleep 5
 
-service nginx reload
+sudo service nginx stop
+sudo service nginx start
 
 # all done!
 echo "Javaperks Application complete."

@@ -2,15 +2,36 @@
 
 echo "Pre-installation tasks..."
 
+# 
+# Install OS updates
+# 
 echo 'libc6 libraries/restart-without-asking boolean true' | sudo debconf-set-selections
 export DEBIAN_FRONTEND=noninteractive
 echo "...installing Ubuntu updates"
 sudo apt-get -y update > /dev/null 2>&1
 sudo apt-get -y upgrade > /dev/null 2>&1
 
+# 
+# Install required packages for:
+#   * basic utilities (unzip, jq, git)
+#   * Python 3 & Pip
+#   * DNSMasq
+#   * MySQL Client
+#   * NodeJS
+#   * Docker
+#   * Java
+#   * Maven
+#   * Nginx
+# 
 echo "...installing system packages"
 sudo apt-get install -y unzip git jq python3 python3-pip python3-dev dnsmasq mysql-client default-libmysqlclient-dev npm docker.io openjdk-11-jre openjdk-11-jdk maven mysql-client-core-5.7 nginx > /dev/null 2>&1
 
+# 
+# Install Python libraries:
+#   * AWS SDK (boto)
+#   * MySQL
+#   * Vault
+# 
 echo "...installing python libraries"
 pip3 install botocore
 pip3 install boto3
@@ -18,6 +39,9 @@ pip3 install mysqlclient
 pip3 install awscli
 pip3 install hvac
 
+# 
+# Create directories we'll need for all our software
+# 
 echo "...creating directories"
 mkdir -p /root/.aws
 mkdir -p /root/go
@@ -31,6 +55,9 @@ mkdir -p /var/run/consul
 mkdir -p /opt/nomad
 mkdir -p /opt/nomad/plugins
 
+# 
+# Setup AWS credentials file
+# 
 echo "...setting AWS credentials"
 sudo bash -c "cat >/root/.aws/config" << 'EOF'
 [default]
@@ -43,6 +70,11 @@ aws_access_key_id=${AWS_ACCESS_KEY}
 aws_secret_access_key=${AWS_SECRET_KEY}
 EOF
 
+# 
+# Reset all environment variables so they 
+# can be passed from this script into the 
+# next one.
+# 
 echo "...setting environment variables"
 export MYSQL_HOST="${MYSQL_HOST}"
 export MYSQL_USER="${MYSQL_USER}"
@@ -66,17 +98,29 @@ export TABLE_CART="${TABLE_CART}"
 export TABLE_ORDER="${TABLE_ORDER}"
 export GOPATH=/root/go
 export GOCACHE=/root/go/.cache
-
 export CLIENT_IP=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
 
+# 
+# Add our hostname to the resolver's host file
+# 
 echo $CLIENT_IP $(echo "ip-$CLIENT_IP" | sed "s/\./-/g") >> /etc/hosts
 
+# 
+# Clone the repo so we can run 
+# our actual build script
+# 
 echo "...cloning repo"
 cd /root
 git clone https://github.com/kevincloud/javaperks-aws-single-server.git
 
+# 
+# Make our build script runnable
+# 
 chmod +x /root/javaperks-aws-single-server/scripts/build.sh
 
 echo "Preparation done."
 
+# 
+# Run the build script
+# 
 . /root/javaperks-aws-single-server/scripts/build.sh
