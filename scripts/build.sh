@@ -52,7 +52,7 @@ Group=consul
 PIDFile=/var/run/consul/consul.pid
 PermissionsStartOnly=true
 ExecStart=/usr/local/bin/consul agent -config-file=/etc/consul.d/consul-server.json -pid-file=/var/run/consul/consul.pid
-ExecReload=/bin/kill -HUP $MAINPID
+ExecReload=/bin/kill -HUP \$MAINPID
 KillMode=process
 KillSignal=SIGTERM
 Restart=on-failure
@@ -238,7 +238,7 @@ template {
 EOF
 
 # Set Consul Template up as a systemd service
-echo "Installing systemd service for Consul..."
+echo "Installing systemd service for Consul Template..."
 sudo bash -c "cat >/etc/systemd/system/consul-template.service" <<EOF
 [Unit]
 Description=Hashicorp Consul Template
@@ -246,13 +246,14 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
-User=consul
-Group=consul
+User=root
+Group=root
 ExecStart=/usr/local/bin/consul-template -config=/etc/consul.d/consul-template-config.hcl -pid-file=/var/run/consul/consul-template.pid
 SuccessExitStatus=12
-ExecReload=/bin/kill -SIGHUP $MAINPID
-ExecStop=/bin/kill -SIGINT $MAINPID
+ExecReload=/bin/kill -SIGHUP \$MAINPID
+ExecStop=/bin/kill -SIGINT \$MAINPID
 KillMode=process
+KillSignal=SIGTERM
 Restart=always
 RestartSec=42s
 LimitNOFILE=4096
