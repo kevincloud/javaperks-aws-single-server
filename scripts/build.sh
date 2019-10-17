@@ -932,7 +932,7 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
         "Datacenters": ["$REGION"],
         "TaskGroups": [{
             "Name": "order-api-group",
-            "Count": 1,
+            "Count": 3,
             "Tasks": [{
                 "Name": "order-api",
                 "Driver": "docker",
@@ -940,7 +940,7 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-order-api:1.1.1",
+                    "image": "jubican/javaperks-order-api:1.1.4",
                     "port_map": [{
                         "http": 80
                     }]
@@ -982,7 +982,15 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                         "Timeout": 2000000000
                     }]
                 }]
-            }]
+            }],
+            "Update": {
+                "MaxParallel": 1,
+                "MinHealthyTime": 10000000000,
+                "HealthyDeadline": 180000000000,
+                "AutoRevert": true,
+                "AutoPromote": true,
+                "Canary": 3
+            }
         }]
     }
 }
