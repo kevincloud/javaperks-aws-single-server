@@ -119,7 +119,7 @@ sleep 3
 
 # Configure the load balancer for "product-api"
 sudo bash -c "cat >>/etc/nginx/conf.d/lb-product-api.conf.ctmpl" <<EOF
-upstream backend {
+upstream product-api-lb {
 {{ range service "product-api" }}
     server {{ .Address }}:{{ .Port }};
 {{ end }}
@@ -129,14 +129,14 @@ server {
    listen 5821;
 
    location / {
-      proxy_pass                  http://backend;
+      proxy_pass                  http://product-api-lb;
    }
 }
 EOF
 
 # Configure the load balancer for "cart-api"
 sudo bash -c "cat >>/etc/nginx/conf.d/lb-cart-api.conf.ctmpl" <<EOF
-upstream backend {
+upstream cart-api-lb {
 {{ range service "cart-api" }}
     server {{ .Address }}:{{ .Port }};
 {{ end }}
@@ -146,14 +146,14 @@ server {
    listen 5823;
 
    location / {
-      proxy_pass                  http://backend;
+      proxy_pass                  http://cart-api-lb;
    }
 }
 EOF
 
 # Configure the load balancer for "order-api"
 sudo bash -c "cat >>/etc/nginx/conf.d/lb-order-api.conf.ctmpl" <<EOF
-upstream backend {
+upstream order-api-lb {
 {{ range service "order-api" }}
     server {{ .Address }}:{{ .Port }};
 {{ end }}
@@ -163,7 +163,7 @@ server {
    listen 5826;
 
    location / {
-      proxy_pass                  http://backend;
+      proxy_pass                  http://order-api-lb;
    }
 }
 EOF
@@ -984,6 +984,7 @@ sudo bash -c "cat >/root/jobs/order-api-job.nomad" <<EOF
                 }]
             }],
             "Update": {
+                "Stagger": 30000000000,
                 "MaxParallel": 1,
                 "MinHealthyTime": 10000000000,
                 "HealthyDeadline": 180000000000,
