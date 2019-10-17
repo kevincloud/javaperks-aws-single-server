@@ -46,10 +46,6 @@ variable "nomad_dl_url" {
     description = "URL for downloading Nomad"
 }
 
-variable "fabio_dl_url" {
-    description = "URL for downloading Fabio"
-}
-
 variable "ctemplate_dl_url" {
     description = "URL for downloading Consul Template"
 }

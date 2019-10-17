@@ -193,6 +193,15 @@ consul {
     }
 }
 
+reload_signal = "SIGHUP"
+kill_signal = "SIGINT"
+log_level = "debug"
+
+syslog {
+  enabled = true
+  facility = "LOCAL5"
+}
+
 vault {
     address = "http://vault-main.service.${REGION}.consul:8200/"
     token = "${VAULT_TOKEN}"
@@ -1101,8 +1110,10 @@ curl \
     http://127.0.0.1:8500/v1/connect/intentions
 
 # now that the services are running, need to reload nginx config
-service consul-template stop
-service consul-template start
+service consul-template reload
+
+sleep 5
+
 service nginx reload
 
 # all done!

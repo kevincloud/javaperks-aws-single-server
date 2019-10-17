@@ -30,7 +30,6 @@ mkdir -p /opt/consul
 mkdir -p /var/run/consul
 mkdir -p /opt/nomad
 mkdir -p /opt/nomad/plugins
-mkdir -p /opt/fabio/bin
 
 echo "...setting AWS credentials"
 sudo bash -c "cat >/root/.aws/config" << 'EOF'
