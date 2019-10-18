@@ -46,7 +46,8 @@ echo "...creating directories"
 mkdir -p /root/.aws
 mkdir -p /root/go
 mkdir -p /etc/vault.d
-mkdir -p /etc/consul.d
+mkdir -p /etc/consul.d/server
+mkdir -p /etc/consul.d/template
 mkdir -p /etc/nomad.d
 mkdir -p /etc/docker
 mkdir -p /opt/vault

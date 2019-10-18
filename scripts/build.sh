@@ -14,7 +14,7 @@ groupadd consul
 useradd consul -g consul
 
 # Server configuration
-sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
+sudo bash -c "cat >/etc/consul.d/server/consul-server.json" <<EOF
 {
     "data_dir": "/opt/consul",
     "datacenter": "${REGION}",
@@ -51,7 +51,7 @@ User=consul
 Group=consul
 PIDFile=/var/run/consul/consul.pid
 PermissionsStartOnly=true
-ExecStart=/usr/local/bin/consul agent -config-file=/etc/consul.d/consul-server.json -pid-file=/var/run/consul/consul.pid
+ExecStart=/usr/local/bin/consul agent -config-file=/etc/consul.d/server/consul-server.json -pid-file=/var/run/consul/consul.pid
 ExecReload=/bin/kill -HUP \$MAINPID
 KillMode=process
 KillSignal=SIGTERM
@@ -176,8 +176,9 @@ echo "Installing Consul Template..."
 
 curl -sfLo "consul-template.zip" "${CTEMPLATE_URL}"
 sudo unzip consul-template.zip -d /usr/local/bin/
+rm -rf consul-template.zip
 
-sudo bash -c "cat >>/etc/consul.d/consul-template-config.hcl" <<EOF
+sudo bash -c "cat >>/etc/consul.d/template/consul-template-config.hcl" <<EOF
 consul {
     address = "${CLIENT_IP}:8500"
 
@@ -248,7 +249,7 @@ After=network-online.target
 [Service]
 User=root
 Group=root
-ExecStart=/usr/local/bin/consul-template -config=/etc/consul.d/consul-template-config.hcl -pid-file=/var/run/consul/consul-template.pid
+ExecStart=/usr/local/bin/consul-template -config=/etc/consul.d/template/consul-template-config.hcl -pid-file=/var/run/consul/consul-template.pid
 SuccessExitStatus=12
 ExecReload=/bin/kill -SIGHUP \$MAINPID
 ExecStop=/bin/kill -SIGINT \$MAINPID
