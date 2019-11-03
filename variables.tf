@@ -69,3 +69,8 @@ variable "consul_join_key" {
 variable "consul_join_value" {
     description = "value for the join key"
 }
+
+variable "git_branch" {
+    description = "Branch used for this instance"
+    default = "master"
+}

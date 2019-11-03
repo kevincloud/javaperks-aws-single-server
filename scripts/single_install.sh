@@ -113,7 +113,7 @@ echo $CLIENT_IP $(echo "ip-$CLIENT_IP" | sed "s/\./-/g") >> /etc/hosts
 # 
 echo "...cloning repo"
 cd /root
-git clone https://github.com/kevincloud/javaperks-aws-single-server.git
+git clone --branch "${BRANCH_NAME}" https://github.com/kevincloud/javaperks-aws-single-server.git
 
 # 
 # Make our build script runnable

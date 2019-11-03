@@ -22,6 +22,7 @@ data "template_file" "hashi-server-setup" {
         TABLE_PRODUCT = "${aws_dynamodb_table.product-data-table.id}"
         TABLE_CART = "${aws_dynamodb_table.customer-cart.id}"
         TABLE_ORDER = "${aws_dynamodb_table.customer-order-table.id}"
+        BRANCH_NAME = "${var.git_branch}"
     }
 }
 
