@@ -45,6 +45,7 @@ pip3 install hvac
 echo "...creating directories"
 mkdir -p /root/.aws
 mkdir -p /root/go
+mkdir -p /root/ldap
 mkdir -p /etc/vault.d
 mkdir -p /etc/consul.d/server
 mkdir -p /etc/consul.d/template
