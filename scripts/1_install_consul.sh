@@ -1,11 +1,11 @@
 #!/bin/bash
 # Configures the Consul server
 
-export CONSUL_URL
-export REGION
-export CLIENT_IP
-export CONSUL_JOIN_KEY
-export CONSUL_JOIN_VALUE
+export CONSUL_URL="$1"
+export REGION="$2"
+export CLIENT_IP="$3"
+export CONSUL_JOIN_KEY="$4"
+export CONSUL_JOIN_VALUE="$5"
 
 echo "Installing Consul..."
 curl -sfLo "consul.zip" "${CONSUL_URL}"
@@ -36,7 +36,7 @@ sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
     "ui": true,
     "recursors": ["169.254.169.253"],
     "encrypt": "$CONSUL_KEY",
-    "acl_datacenter": "us-east-1",
+    "acl_datacenter": "${REGION}",
     "acl_down_policy": "extend-cache",
     "acl_default_policy": "allow",
     "acl_down_policy": "allow",
