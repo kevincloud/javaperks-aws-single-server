@@ -24,7 +24,24 @@ sudo apt-get -y upgrade > /dev/null 2>&1
 #   * Nginx
 # 
 echo "...installing system packages"
-sudo apt-get install -y unzip git jq python3 python3-pip python3-dev dnsmasq mysql-client default-libmysqlclient-dev npm docker.io openjdk-11-jre openjdk-11-jdk maven mysql-client-core-5.7 nginx > /dev/null 2>&1
+sudo apt-get install -y \
+    unzip \
+    git \
+    jq \
+    python3 \
+    python3-pip \
+    python3-dev \
+    dnsmasq \
+    mysql-client \
+    default-libmysqlclient-dev \
+    npm \
+    docker.io \
+    openjdk-11-jre \
+    openjdk-11-jdk \
+    maven \
+    mysql-client-core-5.7 \
+    nginx \
+    ldap-utils > /dev/null 2>&1
 
 # 
 # Install Python libraries:
