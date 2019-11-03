@@ -1178,18 +1178,18 @@ member: cn=Howard Turner,ou=Customers,dc=javaperks,dc=local
 member: cn=Larry Olsen,ou=Customers,dc=javaperks,dc=local
 EOF
 
-ldapadd -f /root/ldap/customers.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/janice_thompson.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/james_wilson.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/tommy_ballinger.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/mary_mccann.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/chris_peterson.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/jennifer_jones.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/clint_mason.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/matt_grey.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/howard_turner.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/larry_olsen.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/StoreUser.ldif -h 10.0.1.179 -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/customers.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/janice_thompson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/james_wilson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/tommy_ballinger.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/mary_mccann.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/chris_peterson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/jennifer_jones.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/clint_mason.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/matt_grey.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/howard_turner.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/larry_olsen.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/StoreUser.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
 
 # check to see all services helped by nginx are online and healthy
 STATUS=""
