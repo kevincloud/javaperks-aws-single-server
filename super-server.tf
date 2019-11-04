@@ -23,6 +23,7 @@ data "template_file" "hashi-server-setup" {
         TABLE_CART = "${aws_dynamodb_table.customer-cart.id}"
         TABLE_ORDER = "${aws_dynamodb_table.customer-order-table.id}"
         BRANCH_NAME = "${var.git_branch}"
+        LDAP_ADMIN_PASS = "${var.ldap_pass}"
     }
 }
 

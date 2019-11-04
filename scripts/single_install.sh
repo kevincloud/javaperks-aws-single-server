@@ -115,6 +115,7 @@ export NOMAD_URL="${NOMAD_URL}"
 export TABLE_PRODUCT="${TABLE_PRODUCT}"
 export TABLE_CART="${TABLE_CART}"
 export TABLE_ORDER="${TABLE_ORDER}"
+export LDAP_ADMIN_PASS="${LDAP_ADMIN_PASS}"
 export GOPATH=/root/go
 export GOCACHE=/root/go/.cache
 export CLIENT_IP=`curl http://169.254.169.254/latest/meta-data/local-ipv4`

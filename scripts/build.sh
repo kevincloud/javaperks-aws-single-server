@@ -261,6 +261,13 @@ curl \
     --data "{ \"descriptiopn\": \"Primary Audit\", \"type\": \"file\", \"options\": { \"file_path\": \"/var/log/vault/log\" } }" \
     http://127.0.0.1:8200/v1/sys/audit/main-audit
 
+# Enable LDAP authentication
+curl \
+    --header "X-Vault-Token: $VAULT_TOKEN" \
+    --request POST \
+    --data '{"type": "ldap" }' \
+    http://127.0.0.1:8200/v1/sys/auth/ldap
+
 # Enable dynamic database creds
 curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
@@ -971,8 +978,8 @@ sudo bash -c "cat >/root/jobs/openldap-job.nomad" <<EOF
                 "Env": {
                     "LDAP_HOSTNAME": "ldap.javaperks.local",
                     "LDAP_DOMAIN": "javaperks.local",
-                    "LDAP_ADMIN_PASSWORD": "SuperFuzz1",
-                    "LDAP_CONFIG_PASSWORD": "SuperFuzz1"
+                    "LDAP_ADMIN_PASSWORD": "${LDAP_ADMIN_PASS}",
+                    "LDAP_CONFIG_PASSWORD": "${LDAP_ADMIN_PASS}"
                 },
                 "Resources": {
                     "CPU": 100,
@@ -1254,18 +1261,24 @@ sudo service consul-template start
 sleep 5
 
 # Add LDAP data
-ldapadd -f /root/ldap/customers.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/janice_thompson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/james_wilson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/tommy_ballinger.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/mary_mccann.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/chris_peterson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/jennifer_jones.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/clint_mason.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/matt_grey.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/howard_turner.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/larry_olsen.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
-ldapadd -f /root/ldap/StoreUser.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w SuperFuzz1
+ldapadd -f /root/ldap/customers.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/janice_thompson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/james_wilson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/tommy_ballinger.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/mary_mccann.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/chris_peterson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/jennifer_jones.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/clint_mason.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/matt_grey.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/howard_turner.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/larry_olsen.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/StoreUser.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+
+curl \
+    --header "X-Vault-Token: $VAULT_TOKEN" \
+    --request POST \
+    --data "{ \"url\": \"ldap://${CLIENT_IP}\", \"userattr\": \"uid\", \"userdn\": \"ou=Customers,dc=javaperks,dc=local\", \"groupdn\": \"ou=Customers,dc=javaperks,dc=local\", \"groupfilter\": \"(&(objectClass=groupOfNames)(member={{.UserDN}}))\", \"groupattr\": \"cn\", \"binddn\": \"cn=admin,dc=javaperks,dc=local\", \"bindpass\": \"${LDAP_ADMIN_PASS}\" }" \
+    http://127.0.0.1:8200/v1/auth/ldap/config
 
 
 # all done!

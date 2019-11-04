@@ -70,6 +70,10 @@ variable "consul_join_value" {
     description = "value for the join key"
 }
 
+variable "ldap_pass" {
+    description = "Admin password for the OpenLDAP server"
+}
+
 variable "git_branch" {
     description = "Branch used for this instance"
     default = "master"
