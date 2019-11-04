@@ -1265,24 +1265,47 @@ while [ "$STATUS" != "passing" ]; do
 done
 echo "Done."
 
+STATUS=""
+echo "Waiting for openldap service to become healthy..."
+while [ "$STATUS" != "passing" ]; do
+        sleep 2
+        STATUS="passing"
+        curl -s http://127.0.0.1:8500/v1/health/service/openldap > openldap-status.txt
+        outcount=`cat openldap-status.txt  | jq -r '. | length'`
+        for ((oc = 0; oc < $outcount ; oc++ )); do
+                incount=`cat openldap-status.txt  | jq -r --argjson oc $oc '.[$oc].Checks | length'`
+                for ((ic = 0; ic < $incount ; ic++ )); do
+                        indstatus=`cat openldap-status.txt  | jq -r --argjson oc $oc --argjson ic $ic '.[$oc].Checks[$ic].Status'`
+                        if [ "$indstatus" != "passing" ]; then
+                                STATUS=""
+                        fi
+                done
+        done
+        rm openldap-status.txt
+        if [ "$indstatus" != "passing" ]; then
+                echo "...checking again"
+        fi
+done
+echo "Done."
+
 # now that the services are running, need to start consul template
 sudo service consul-template start
 
 sleep 5
 
 # Add LDAP data
-ldapadd -f /root/ldap/customers.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/janice_thompson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/james_wilson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/tommy_ballinger.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/mary_mccann.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/chris_peterson.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/jennifer_jones.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/clint_mason.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/matt_grey.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/howard_turner.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/larry_olsen.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/StoreUser.ldif -h ${CLIENT_IP} -D cn=admin,dc=javaperks,dc=local -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/customers.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/janice_thompson.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/james_wilson.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/tommy_ballinger.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/mary_mccann.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/chris_peterson.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/jennifer_jones.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/clint_mason.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/matt_grey.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/howard_turner.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/larry_olsen.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/StoreUser.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
 
 curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
