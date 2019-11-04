@@ -621,14 +621,14 @@ sudo bash -c "cat >/root/jobs/auth-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "command": "local/javaperks-auth-api"
+                    "command": "local/javaperks-auth-api-1.1.1"
                 },
                 "Artifacts": [{
-                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/bin/javaperks-auth-api",
+                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/bin/javaperks-auth-api-1.1.1",
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
-                    "EmbeddedTmpl": "VAULT_ADDR = \"http://vault-main.service.$REGION.consul:8200\"\nVAULT_TOKEN = \"$VAULT_TOKEN\"\n",
+                    "EmbeddedTmpl": "VAULT_ADDR = \"http://vault-main.service.$REGION.consul:8200\"\nVAULT_TOKEN = \"$VAULT_TOKEN\"\nLDAP_HOST = \"$CLIENT_IP\"\nLDAP_ADMIN = \"$LDAP_ADMIN_USER\"\nLDAP_PASSWORD = \"$LDAP_ADMIN_PASS\"\n",
                     "DestPath": "secrets/file.env",
                     "Envvars": true
                 }],
@@ -1077,6 +1077,7 @@ sn: Thompson
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: jthomp4423@example.com
+employeeNumber: CS100312
 EOF
 
 # Add customer #2 - James Wilson
@@ -1087,6 +1088,7 @@ sn: Wilson
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: wilson@example.com
+employeeNumber: CS106004
 EOF
 
 # Add customer #3 - Tommy Ballinger
@@ -1097,6 +1099,7 @@ sn: Ballinger
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: tommy6677@example.com
+employeeNumber: CS101438
 EOF
 
 # Add customer #4 - Mary McCann
@@ -1107,6 +1110,7 @@ sn: McCann
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: mmccann1212@example.com
+employeeNumber: CS210895
 EOF
 
 # Add customer #5 - Chris Peterson
@@ -1117,6 +1121,7 @@ sn: Peterson
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: cjpcomp@example.com
+employeeNumber: CS122955
 EOF
 
 # Add customer #6 - Jennifer Jones
@@ -1127,6 +1132,7 @@ sn: Jones
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: jjhome7823@example.com
+employeeNumber: CS602934
 EOF
 
 # Add customer #7 - Clint Mason
@@ -1137,6 +1143,7 @@ sn: Mason
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: clint.mason312@example.com
+employeeNumber: CS157843
 EOF
 
 # Add customer #8 - Matt Grey
@@ -1147,6 +1154,7 @@ sn: Grey
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: greystone89@example.com
+employeeNumber: CS523484
 EOF
 
 # Add customer #9 - Howard Turner
@@ -1157,6 +1165,7 @@ sn: Turner
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: runwayyourway@example.com
+employeeNumber: CS658871
 EOF
 
 # Add customer #10 - Larry Olsen
@@ -1167,6 +1176,7 @@ sn: Olsen
 objectClass: inetOrgPerson
 userPassword: SuperSecret1
 uid: olsendog1979@example.com
+employeeNumber: CS103393
 EOF
 
 sudo bash -c "cat >/root/ldap/StoreUser.ldif" <<EOF

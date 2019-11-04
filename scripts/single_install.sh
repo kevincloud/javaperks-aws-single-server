@@ -116,6 +116,7 @@ export TABLE_PRODUCT="${TABLE_PRODUCT}"
 export TABLE_CART="${TABLE_CART}"
 export TABLE_ORDER="${TABLE_ORDER}"
 export LDAP_ADMIN_PASS="${LDAP_ADMIN_PASS}"
+export LDAP_ADMIN_USER="cn=admin,dc=javaperks,dc=local"
 export GOPATH=/root/go
 export GOCACHE=/root/go/.cache
 export CLIENT_IP=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
