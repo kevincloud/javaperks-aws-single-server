@@ -621,10 +621,10 @@ sudo bash -c "cat >/root/jobs/auth-api-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "command": "local/javaperks-auth-api-1.1.1"
+                    "command": "local/javaperks-auth-api-1.1.5"
                 },
                 "Artifacts": [{
-                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/bin/javaperks-auth-api-1.1.1",
+                    "GetterSource": "https://jubican-public.s3-us-west-2.amazonaws.com/bin/javaperks-auth-api-1.1.5",
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
