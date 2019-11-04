@@ -144,5 +144,3 @@ echo "Preparation done."
 # 
 cd /root/javaperks-aws-single-server/
 . ./scripts/build.sh
-
-# 
