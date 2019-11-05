@@ -1036,7 +1036,7 @@ sudo bash -c "cat >/root/jobs/cust-connect-job.nomad" <<EOF
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
-                    "EmbeddedTmpl": "logging:\n  level: INFO\n  loggers:\n    com.javaperks.api: DEBUG\nserver:\n  applicationConnectors:\n  - type: http\n    port: \$NOMAD_PORT_http\n    bindHost: 127.0.0.1\n  adminConnectors:\n  - type: http\n    port: 9001\nvaultAddress: \"http://vault-main.service.$REGION.consul:8200\"\nvaultToken: \"$VAULT_TOKEN\"\n",
+                    "EmbeddedTmpl": "logging:\n  level: INFO\n  loggers:\n    com.javaperks.api: DEBUG\nserver:\n  applicationConnectors:\n  - type: http\n    port: {{ env \"\$NOMAD_PORT_http\" }}\n    bindHost: 127.0.0.1\n  adminConnectors:\n  - type: http\n    port: 9001\nvaultAddress: \"http://vault-main.service.$REGION.consul:8200\"\nvaultToken: \"$VAULT_TOKEN\"\n",
                     "DestPath": "local/config.yml"
                 }],
                 "Resources": {
@@ -1073,7 +1073,7 @@ sudo bash -c "cat >/root/jobs/cust-connect-job.nomad" <<EOF
                         "connect", "proxy",
                         "-service", "db",
                         "-service-addr", "$CLIENT_IP",
-                        "-listen", ":\$NOMAD_PORT_http",
+                        "-listen", ":\${NOMAD_PORT_http}",
                         "-register" 
                     ]
                 },
