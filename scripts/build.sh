@@ -1036,7 +1036,7 @@ sudo bash -c "cat >/root/jobs/cust-connect-job.nomad" <<EOF
                     "RelativeDest": "local/"
                 }],
                 "Templates": [{
-                    "EmbeddedTmpl": "logging:\n  level: INFO\n  loggers:\n    com.javaperks.api: DEBUG\nserver:\n  applicationConnectors:\n  - type: http\n    port: 5822\n    bindHost: 127.0.0.1\n  adminConnectors:\n  - type: http\n    port: 9001\nvaultAddress: \"http://vault-main.service.$REGION.consul:8200\"\nvaultToken: \"$VAULT_TOKEN\"\n",
+                    "EmbeddedTmpl": "logging:\n  level: INFO\n  loggers:\n    com.javaperks.api: DEBUG\nserver:\n  applicationConnectors:\n  - type: http\n    port: \$NOMAD_PORT_http\n    bindHost: 127.0.0.1\n  adminConnectors:\n  - type: http\n    port: 9001\nvaultAddress: \"http://vault-main.service.$REGION.consul:8200\"\nvaultToken: \"$VAULT_TOKEN\"\n",
                     "DestPath": "local/config.yml"
                 }],
                 "Resources": {
@@ -1044,10 +1044,10 @@ sudo bash -c "cat >/root/jobs/cust-connect-job.nomad" <<EOF
                     "MemoryMB": 256,
                     "Networks": [{
                         "MBits": 1,
-                        "ReservedPorts": [
+                        "DynamicPorts": [
                             {
                                 "Label": "http",
-                                "Value": 5822
+                                "Value": 0
                             }
                         ]
                     }]
@@ -1073,7 +1073,7 @@ sudo bash -c "cat >/root/jobs/cust-connect-job.nomad" <<EOF
                         "connect", "proxy",
                         "-service", "db",
                         "-service-addr", "$CLIENT_IP",
-                        "-listen", ":5822",
+                        "-listen", ":\$NOMAD_PORT_http",
                         "-register" 
                     ]
                 },
@@ -1136,6 +1136,11 @@ curl \
     --request POST \
     --data @/root/jobs/openldap-job.nomad \
     http://nomad-server.service.$REGION.consul:4646/v1/jobs
+
+# curl \
+#     --request POST \
+#     --data @/root/jobs/cust-connect-job.nomad \
+#     http://nomad-server.service.us-east-1.consul:4646/v1/jobs
 
 echo "Creating Consul intentions..."
 
