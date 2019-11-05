@@ -40,7 +40,10 @@ sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
     "acl_down_policy": "extend-cache",
     "acl_default_policy": "allow",
     "acl_down_policy": "allow",
-    "acl_master_token": "$CONSUL_TOKEN"
+    "acl_master_token": "$CONSUL_TOKEN",
+    "connect": {
+        "enabled": true
+    }
 }
 EOF
 
