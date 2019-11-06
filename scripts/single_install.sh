@@ -63,6 +63,8 @@ echo "...creating directories"
 mkdir -p /root/.aws
 mkdir -p /root/go
 mkdir -p /root/ldap
+mkdir -p /root/components
+mkdir -p /root/jobs
 mkdir -p /etc/vault.d
 mkdir -p /etc/consul.d/server
 mkdir -p /etc/consul.d/template
@@ -70,9 +72,9 @@ mkdir -p /etc/nomad.d
 mkdir -p /etc/docker
 mkdir -p /opt/vault
 mkdir -p /opt/consul
-mkdir -p /var/run/consul
 mkdir -p /opt/nomad
 mkdir -p /opt/nomad/plugins
+mkdir -p /var/run/consul
 
 # 
 # Setup AWS credentials file
@@ -134,18 +136,44 @@ echo "...cloning repo"
 cd /root
 git clone --branch "${BRANCH_NAME}" https://github.com/kevincloud/javaperks-aws-single-server.git
 
-# 
-# Make our build script runnable
-# 
-chmod +x /root/javaperks-aws-single-server/scripts/build.sh
-
-echo "Preparation done."
+echo "Preparation complete."
 
 # 
-# Run the build script
+# Run the build scripts
 # 
 cd /root/javaperks-aws-single-server/
-. ./scripts/build.sh
 
-#
-    
+# Configures the Consul server
+
+. ./scripts/1_install_consul.sh "$CONSUL_URL" "$REGION" "$CLIENT_IP" "$CONSUL_JOIN_KEY" "$CONSUL_JOIN_VALUE"
+
+# Configures the Vault server for a database secrets demo
+
+. ./scripts/2_install_vault.sh "$VAULT_URL" "$REGION" "$CLIENT_IP" "$AWS_KMS_KEY_ID" "$MYSQL_HOST" "$MYSQL_DB" "$MYSQL_USER" "$MYSQL_PASS" "$AWS_ACCESS_KEY" "$LDAP_ADMIN_USER" "$LDAP_ADMIN_PASS"
+
+# Configures Consul Template and nginx
+
+. ./scripts/3_install_consul_template.sh "$CTEMPLATE_URL" "$REGION" "$CLIENT_IP" "$VAULT_TOKEN"
+
+# Configures the Nomad server
+
+. ./scripts/4_install_nomad.sh "$NOMAD_URL" "$REGION" "$CLIENT_IP" "$VAULT_TOKEN"
+
+# Populate with data needed by Nomad jobs
+
+. ./scripts/5_prepopulate_data.sh "$REGION" "$MYSQL_USER" "$MYSQL_PASS" "$VAULT_TOKEN" "$TABLE_PRODUCT" "$S3_BUCKET"
+
+# Create and launch Nomad jobs
+
+. ./scripts/6_create_jobs.sh "$REGION" "$CLIENT_IP" "$VAULT_TOKEN" "$LDAP_ADMIN_USER" "$LDAP_ADMIN_PASS" "$TABLE_PRODUCT" "$TABLE_CART" "$TABLE_ORDER" "$S3_BUCKET"
+
+# Wait for Nomad jobs to become healthy
+
+. ./scripts/7_poll_nomad_jobs.sh
+
+# Populate with data after jobs are running
+
+. ./scripts/8_postpopulate_data.sh "$CLIENT_IP" "$LDAP_ADMIN_USER" "$LDAP_ADMIN_PASS"
+
+# all done!
+echo "Javaperks Application complete."

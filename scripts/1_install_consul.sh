@@ -6,6 +6,7 @@ export REGION="$2"
 export CLIENT_IP="$3"
 export CONSUL_JOIN_KEY="$4"
 export CONSUL_JOIN_VALUE="$5"
+export MYSQL_HOST="$6"
 
 echo "Installing Consul..."
 curl -sfLo "consul.zip" "${CONSUL_URL}"
@@ -125,3 +126,14 @@ service consul stop
 service consul start
 
 sleep 3
+
+echo "Get Consul node id..."
+export CONSUL_NODE_ID=$(curl -s http://127.0.0.1:8500/v1/catalog/node/consul-server | jq -r .Node.ID)
+
+# register the database host with consul
+echo "Registering customer-db with consul..."
+curl \
+    --request PUT \
+    --data "{ \"Datacenter\": \"$REGION\", \"Node\": \"$CONSUL_NODE_ID\", \"Address\":\"$MYSQL_HOST\", \"Service\": { \"ID\": \"customer-db\", \"Service\": \"customer-db\", \"Address\": \"$MYSQL_HOST\", \"Port\": 3306 } }" \
+    http://127.0.0.1:8500/v1/catalog/register
+
