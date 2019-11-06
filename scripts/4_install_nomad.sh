@@ -104,10 +104,6 @@ EOF
 sudo systemctl start nomad
 sudo systemctl enable nomad
 
-cd /root
-go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
-mv /root/go/bin/docker-credential-ecr-login /usr/local/bin
-
 curl \
     http://127.0.0.1:8500/v1/agent/service/register \
     --request PUT \

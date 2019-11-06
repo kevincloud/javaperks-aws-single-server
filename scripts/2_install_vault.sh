@@ -259,19 +259,19 @@ curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
     --data '{"type":"transit"}' \
-    http://vault-main.service.$REGION.consul:8200/v1/sys/mounts/transit
+    http://127.0.0.1:8200/v1/sys/mounts/transit
 
 echo "Create account key..."
 curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    http://vault-main.service.$REGION.consul:8200/v1/transit/keys/account
+    http://127.0.0.1:8200/v1/transit/keys/account
 
 echo "Create payment key..."
 curl \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    http://vault-main.service.$REGION.consul:8200/v1/transit/keys/payment
+    http://127.0.0.1:8200/v1/transit/keys/payment
 
 
 echo "Register with Consul"
