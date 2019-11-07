@@ -1,12 +1,12 @@
 #!/bin/bash
 # Configures the Consul server
 
-export CONSUL_URL="$1"
-export REGION="$2"
-export CLIENT_IP="$3"
-export CONSUL_JOIN_KEY="$4"
-export CONSUL_JOIN_VALUE="$5"
-export MYSQL_HOST="$6"
+# export CONSUL_URL="$1"
+# export REGION="$2"
+# export CLIENT_IP="$3"
+# export CONSUL_JOIN_KEY="$4"
+# export CONSUL_JOIN_VALUE="$5"
+# export MYSQL_HOST="$6"
 
 echo "Installing Consul..."
 curl -sfLo "consul.zip" "${CONSUL_URL}"

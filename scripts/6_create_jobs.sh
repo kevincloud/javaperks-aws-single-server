@@ -1,14 +1,14 @@
 #!/bin/bash
 
-export REGION="$1"
-export CLIENT_IP="$2"
-export VAULT_TOKEN="$3"
-export LDAP_ADMIN_USER="$4"
-export LDAP_ADMIN_PASS="$5"
-export TABLE_PRODUCT="$6"
-export TABLE_CART="$7"
-export TABLE_ORDER="$8"
-export S3_BUCKET="$9"
+# export REGION="$1"
+# export CLIENT_IP="$2"
+# export VAULT_TOKEN="$3"
+# export LDAP_ADMIN_USER="$4"
+# export LDAP_ADMIN_PASS="$5"
+# export TABLE_PRODUCT="$6"
+# export TABLE_CART="$7"
+# export TABLE_ORDER="$8"
+# export S3_BUCKET="$9"
 
 
 echo "Creating Nomad job files..."
@@ -394,8 +394,8 @@ sudo bash -c "cat >/root/jobs/openldap-job.nomad" <<EOF
                 "Env": {
                     "LDAP_HOSTNAME": "ldap.javaperks.local",
                     "LDAP_DOMAIN": "javaperks.local",
-                    "LDAP_ADMIN_PASSWORD": "${LDAP_ADMIN_PASS}",
-                    "LDAP_CONFIG_PASSWORD": "${LDAP_ADMIN_PASS}"
+                    "LDAP_ADMIN_PASSWORD": "$LDAP_ADMIN_PASS",
+                    "LDAP_CONFIG_PASSWORD": "$LDAP_ADMIN_PASS"
                 },
                 "Resources": {
                     "CPU": 100,

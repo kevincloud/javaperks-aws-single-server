@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export CTEMPLATE_URL="$1"
-export REGION="$2"
-export CLIENT_IP="$3"
-export VAULT_TOKEN="$4"
+# export CTEMPLATE_URL="$1"
+# export REGION="$2"
+# export CLIENT_IP="$3"
+# export VAULT_TOKEN="$4"
 
 # Configure the load balancer for "product-api"
 sudo bash -c "cat >>/etc/nginx/conf.d/lb-product-api.conf.ctmpl" <<EOF

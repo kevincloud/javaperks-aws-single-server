@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export NOMAD_URL="$1"
-export REGION="$2"
-export CLIENT_IP="$3"
-export VAULT_TOKEN="$4"
+# export NOMAD_URL="$1"
+# export REGION="$2"
+# export CLIENT_IP="$3"
+# export VAULT_TOKEN="$4"
 
 echo "Installing Nomad..."
 curl -sfLo "nomad.zip" "${NOMAD_URL}"
