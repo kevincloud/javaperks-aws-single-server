@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# export CLIENT_IP="$1"
-# export LDAP_ADMIN_USER="$2"
-# export LDAP_ADMIN_PASS="$3"
-
 # Add LDAP Data
 
 # add customers group

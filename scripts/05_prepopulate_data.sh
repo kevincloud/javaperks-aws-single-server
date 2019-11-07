@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# export REGION="$1"
-# export MYSQL_USER="$2"
-# export MYSQL_PASS="$3"
-# export VAULT_TOKEN="$4"
-# export TABLE_PRODUCT="$5"
-# export S3_BUCKET="$6"
-
 # Create mysql database
 echo "Creating database..."
 python3 /root/javaperks-aws-single-server/scripts/create_db.py customer-db.service.$REGION.consul $MYSQL_USER $MYSQL_PASS $VAULT_TOKEN $REGION

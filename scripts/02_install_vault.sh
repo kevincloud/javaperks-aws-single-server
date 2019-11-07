@@ -1,18 +1,5 @@
 #!/bin/bash
 
-# export VAULT_URL="$1"
-# export REGION="$2"
-# export CLIENT_IP="$3"
-# export AWS_KMS_KEY_ID="$4"
-# export MYSQL_HOST="$5"
-# export MYSQL_DB="$6"
-# export MYSQL_USER="$7"
-# export MYSQL_PASS="$8"
-# export AWS_ACCESS_KEY="$9"
-# export AWS_SECRET_KEY="${10}"
-# export LDAP_ADMIN_USER="${11}"
-# export LDAP_ADMIN_PASS="${12}"
-
 echo "Installing Vault..."
 curl -sfLo "vault.zip" "${VAULT_URL}"
 sudo unzip vault.zip -d /usr/local/bin/
