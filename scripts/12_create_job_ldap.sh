@@ -87,3 +87,7 @@ while [ "$STATUS" != "passing" ]; do
         fi
 done
 echo "Done."
+
+# we need to sleep for just a few seconds
+
+sleep 5

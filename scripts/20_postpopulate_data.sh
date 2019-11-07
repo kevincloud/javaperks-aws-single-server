@@ -136,6 +136,7 @@ member: cn=Larry Olsen,ou=Customers,dc=javaperks,dc=local
 EOF
 
 # Add LDAP data
+# ldapadd -f /root/ldap/customers.ldif -h "10.0.1.224" -D "cn=admin,dc=javaperks,dc=local" -w SuperFuzz1
 ldapadd -f /root/ldap/customers.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
 ldapadd -f /root/ldap/janice_thompson.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
 ldapadd -f /root/ldap/james_wilson.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
