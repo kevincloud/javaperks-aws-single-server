@@ -394,8 +394,8 @@ sudo bash -c "cat >/root/jobs/openldap-job.nomad" <<EOF
                 "Env": {
                     "LDAP_HOSTNAME": "ldap.javaperks.local",
                     "LDAP_DOMAIN": "javaperks.local",
-                    "LDAP_ADMIN_PASSWORD": "${LDAP_ADMIN_PASS}",
-                    "LDAP_CONFIG_PASSWORD": "${LDAP_ADMIN_PASS}"
+                    "LDAP_ADMIN_PASSWORD": "$LDAP_ADMIN_PASS",
+                    "LDAP_CONFIG_PASSWORD": "$LDAP_ADMIN_PASS"
                 },
                 "Resources": {
                     "CPU": 100,

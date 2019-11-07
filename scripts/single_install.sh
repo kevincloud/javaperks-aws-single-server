@@ -63,7 +63,7 @@ echo "...creating directories"
 mkdir -p /root/.aws
 mkdir -p /root/go
 mkdir -p /root/ldap
-mkdir -p /root/components
+mkdir -p /root/javaperks-product-api
 mkdir -p /root/jobs
 mkdir -p /etc/vault.d
 mkdir -p /etc/consul.d/server
@@ -145,7 +145,7 @@ cd /root/javaperks-aws-single-server/
 
 # Configures the Consul server
 
-. ./scripts/1_install_consul.sh "$CONSUL_URL" "$REGION" "$CLIENT_IP" "$CONSUL_JOIN_KEY" "$CONSUL_JOIN_VALUE"
+. ./scripts/1_install_consul.sh "$CONSUL_URL" "$REGION" "$CLIENT_IP" "$CONSUL_JOIN_KEY" "$CONSUL_JOIN_VALUE" "$MYSQL_HOST"
 
 # Configures the Vault server for a database secrets demo
 
