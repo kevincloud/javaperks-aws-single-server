@@ -140,17 +140,16 @@ member: cn=Larry Olsen,ou=Customers,dc=javaperks,dc=local
 EOF
 
 # Add LDAP data
-ldapadd -f /root/ldap/customers.ldif -h "10.0.1.63" -D "cn=admin,dc=javaperks,dc=local" -w SuperFuzz1
-ldapadd -f /root/ldap/customers.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/janice_thompson.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/james_wilson.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/tommy_ballinger.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/mary_mccann.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/chris_peterson.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/jennifer_jones.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/clint_mason.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/matt_grey.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/howard_turner.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/larry_olsen.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
-ldapadd -f /root/ldap/StoreUser.ldif -h ${CLIENT_IP} -D ${LDAP_ADMIN_USER} -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/customers.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/janice_thompson.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/james_wilson.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/tommy_ballinger.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/mary_mccann.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/chris_peterson.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/jennifer_jones.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/clint_mason.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/matt_grey.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/howard_turner.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/larry_olsen.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
+ldapadd -f /root/ldap/StoreUser.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
 
