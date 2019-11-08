@@ -86,9 +86,8 @@ while [ "$STATUS" != "passing" ]; do
                 echo "...checking openldap again"
         fi
 done
-echo "Done."
 
-# we need to sleep for just a few seconds
+# wait for openldap to become active
 
 sleep 5
 
@@ -97,7 +96,7 @@ SVCCNT=0
 while [ "$STATUS" != "top" ]; do
     SVCCNT=$(($SVCCNT + 1))
     if [ $SVCCNT -gt 20 ]; then
-        echo "...timeout checking ldap"
+        echo "...status check timed out for openldap"
         break
     fi
     sleep 2
@@ -106,3 +105,4 @@ while [ "$STATUS" != "top" ]; do
         echo "...checking openldap again"
     fi
 done
+echo "Done."
