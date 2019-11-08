@@ -150,4 +150,4 @@ ldapadd -f /root/ldap/howard_turner.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER
 ldapadd -f /root/ldap/larry_olsen.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
 ldapadd -f /root/ldap/StoreUser.ldif -h "${CLIENT_IP}" -D "${LDAP_ADMIN_USER}" -w ${LDAP_ADMIN_PASS}
 
-service consult-template start
+service consul-template start
