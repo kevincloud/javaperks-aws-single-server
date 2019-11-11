@@ -130,7 +130,7 @@ echo $CLIENT_IP $(echo "ip-$CLIENT_IP" | sed "s/\./-/g") >> /etc/hosts
 
 # 
 # Clone the repo so we can run 
-# our actual build script
+# our actual build scripts
 # 
 echo "...cloning repo"
 cd /root
