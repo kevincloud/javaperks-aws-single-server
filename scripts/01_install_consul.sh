@@ -35,6 +35,9 @@ sudo bash -c "cat >/etc/consul.d/consul-server.json" <<EOF
     "acl_default_policy": "allow",
     "acl_down_policy": "allow",
     "acl_master_token": "$CONSUL_TOKEN",
+    "ports": {
+        "grpc": 8502
+    },
     "connect": {
         "enabled": true
     }
