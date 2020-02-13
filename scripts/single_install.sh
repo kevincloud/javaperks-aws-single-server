@@ -36,7 +36,7 @@ sudo apt-get install -y \
     python3-dev \
     dnsmasq \
     mysql-client \
-    default-libmysqlclient-dev \
+    libmariadbclient-dev \
     npm \
     docker.io \
     openjdk-11-jre \
