@@ -9,7 +9,7 @@ echo "Loading product data..."
 python3 /root/javaperks-aws-single-server/scripts/product_load.py $TABLE_PRODUCT $REGION
 
 # upload product-app images
-echo "Cloneing product images..."
+echo "Cloning product images..."
 git clone https://github.com/kevincloud/javaperks-product-api.git /root/javaperks-product-api
 
 # Upload images to S3

@@ -47,6 +47,7 @@ resource "aws_instance" "hashi-server" {
         "aws_dynamodb_table.product-data-table"
     ]
 }
+
 resource "aws_db_subnet_group" "dbsubnets" {
     name = "javaperks-db-subnet-${var.unit_prefix}"
     subnet_ids = ["${aws_subnet.private-subnet.id}", "${aws_subnet.private-subnet-2.id}"]

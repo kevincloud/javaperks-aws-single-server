@@ -27,4 +27,24 @@ To get started with this demo, copy the terraform.tfvars.example and fill in wit
 * `ldap_pass`: LDAP admin password. Defaults to `MySecretPassword`
 * `git_branch`: Branch to use for cloning install scripts. Defaults to `master`
 
+### Application Repos
 
+Java Perks is comprised of 6 total applications:
+
+Online Store (Frontend):
+https://github.com/kevincloud/javaperks-online-store
+
+Customer data API, MySQL backend:
+https://github.com/kevincloud/javaperks-customer-api
+
+Shopping cart API, DynamoDB backend:
+https://github.com/kevincloud/javaperks-cart-api
+
+Order API, DynamoDB backend:
+https://github.com/kevincloud/javaperks-order-api
+
+Product API, DynamoDB backend:
+https://github.com/kevincloud/javaperks-product-api
+
+Authentication API, Vault/LDAP backend:
+https://github.com/kevincloud/javaperks-auth-api

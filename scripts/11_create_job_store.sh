@@ -17,7 +17,7 @@ sudo bash -c "cat >/root/jobs/online-store-job.nomad" <<EOF
                     "Policies": ["access-creds"]
                 },
                 "Config": {
-                    "image": "jubican/javaperks-online-store:latest",
+                    "image": "jubican/javaperks-online-store:1.1.2",
                     "dns_servers": ["169.254.1.1"],
                     "port_map": [{
                         "http": 80
@@ -40,6 +40,14 @@ sudo bash -c "cat >/root/jobs/online-store-job.nomad" <<EOF
                             }
                         ]
                     }]
+                },
+                "Env": {
+                    "JPAPI_AUTH_HOST": "http://auth-api.service.$REGION.consul:5825",
+                    "JPAPI_PROD_HOST": "http://product-api.service.$REGION.consul:5821",
+                    "JPAPI_CUST_HOST": "http://customer-api.service.$REGION.consul:5821",
+                    "JPAPI_CART_HOST": "http://cart-api.service.$REGION.consul:5821",
+                    "JPAPI_ORDR_HOST": "http://order-api.service.$REGION.consul:5826",
+                    "VAULT_ADDR": "http://vault-main.service.$REGION.consul:8200"
                 },
                 "Services": [{
                     "Name": "online-store",

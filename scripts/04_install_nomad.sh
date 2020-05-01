@@ -115,4 +115,15 @@ curl -L -o cni-plugins.tgz https://github.com/containernetworking/plugins/releas
 sudo mkdir -p /opt/cni/bin
 sudo tar -C /opt/cni/bin -xzf cni-plugins.tgz
 
+echo "Open bridge for traffic..."
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-arptables
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+sudo bash -c "cat >/etc/sysctl.d/10-network-bridge.conf" <<EOF
+net.bridge.bridge-nf-call-arptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.bridge.bridge-nf-call-iptables=1
+EOF
+
 echo "Nomad installation complete."

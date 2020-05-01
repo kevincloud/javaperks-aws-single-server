@@ -112,24 +112,30 @@ job "cust-connect-job" {
         stagger = "10s"
         max_parallel = 1
         health_check = "checks"
-        min_healthy_time = "10s"
-        healthy_deadline = "30s"
+        min_healthy_time = "60s"
+        healthy_deadline = "120s"
     }
     group "cust-connect-group" {
         count = 1
         network {
             mode = "bridge"
+
+            port "http" {
+                static = 5822
+                to = 5822
+            }
         }
         service {
             name = "customer-api"
-            port = "http"
+            address_mode = "driver"
+            port = "5822"
 
             connect {
                 sidecar_service {
                     proxy {
                         upstreams {
-                            destination_name = "customer-db"
-                            local_bind_port  = 3306
+                            destination_name = "vault-main"
+                            local_bind_port  = 8200
                         }
                     }
                 }
