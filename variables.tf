@@ -71,6 +71,10 @@ variable "vault_license_key" {
     description = "License key for Vault Enterprise"
 }
 
+variable "nomad_license_key" {
+    description = "License key for Vault Enterprise"
+}
+
 variable "unit_prefix" {
     description = "Prefix for each resource to be created"
 }

@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "staticimg" {
 }
 
 resource "aws_s3_bucket_policy" "staticimgpol" {
-    bucket = "${aws_s3_bucket.staticimg.id}"
+    bucket = aws_s3_bucket.staticimg.id
 
     policy = <<POLICY
 {

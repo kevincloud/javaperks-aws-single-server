@@ -1,40 +1,36 @@
-data "template_file" "hashi-server-setup" {
-    template = "${file("${path.module}/scripts/single_install.sh")}"
-
-    vars = {
-        MYSQL_HOST = "${aws_db_instance.javaperks-mysql.address}"
-        MYSQL_USER = "${var.mysql_user}"
-        MYSQL_PASS = "${var.mysql_pass}"
-        MYSQL_DB = "${var.mysql_database}"
-        AWS_ACCESS_KEY = "${var.aws_access_key}"
-        AWS_SECRET_KEY = "${var.aws_secret_key}"
-        AWS_KMS_KEY_ID = "${var.aws_kms_key_id}"
-        REGION = "${var.aws_region}"
-        S3_BUCKET = "${aws_s3_bucket.staticimg.id}"
-        VAULT_URL = "${var.vault_dl_url}"
-        VAULT_LICENSE = "${var.vault_license_key}"
-        CONSUL_URL = "${var.consul_dl_url}"
-        CONSUL_LICENSE = "${var.consul_license_key}"
-        CONSUL_JOIN_KEY = "${var.consul_join_key}"
-        CONSUL_JOIN_VALUE = "${var.consul_join_value}"
-        NOMAD_URL = "${var.nomad_dl_url}"
-        CTEMPLATE_URL = "${var.ctemplate_dl_url}"
-        TABLE_PRODUCT = "${aws_dynamodb_table.product-data-table.id}"
-        TABLE_CART = "${aws_dynamodb_table.customer-cart.id}"
-        TABLE_ORDER = "${aws_dynamodb_table.customer-order-table.id}"
-        BRANCH_NAME = "${var.git_branch}"
-        LDAP_ADMIN_PASS = "${var.ldap_pass}"
-    }
-}
-
 resource "aws_instance" "hashi-server" {
-    ami = "${data.aws_ami.ubuntu.id}"
-    instance_type = "${var.instance_size}"
-    key_name = "${var.key_pair}"
-    vpc_security_group_ids = ["${aws_security_group.hashi-server-sg.id}"]
-    user_data = "${data.template_file.hashi-server-setup.rendered}"
-    subnet_id = "${aws_subnet.public-subnet.id}"
-    iam_instance_profile = "${aws_iam_instance_profile.hashi-main-profile.id}"
+    ami = data.aws_ami.ubuntu.id
+    instance_type = var.instance_size
+    key_name = var.key_pair
+    vpc_security_group_ids = [aws_security_group.hashi-server-sg.id]
+    subnet_id = aws_subnet.public-subnet.id
+    iam_instance_profile = aws_iam_instance_profile.hashi-main-profile.id
+    user_data = templatefile("${path.module}/scripts/single_install.sh", {
+        MYSQL_HOST = aws_db_instance.javaperks-mysql.address
+        MYSQL_USER = var.mysql_user
+        MYSQL_PASS = var.mysql_pass
+        MYSQL_DB = var.mysql_database
+        AWS_ACCESS_KEY = var.aws_access_key
+        AWS_SECRET_KEY = var.aws_secret_key
+        AWS_SESSION_TOKEN = var.aws_session_token
+        AWS_KMS_KEY_ID = var.aws_kms_key_id
+        REGION = var.aws_region
+        S3_BUCKET = aws_s3_bucket.staticimg.id
+        VAULT_URL = var.vault_dl_url
+        VAULT_LICENSE = var.vault_license_key
+        CONSUL_URL = var.consul_dl_url
+        CONSUL_LICENSE = var.consul_license_key
+        CONSUL_JOIN_KEY = var.consul_join_key
+        CONSUL_JOIN_VALUE = var.consul_join_value
+        NOMAD_URL = var.nomad_dl_url
+        NOMAD_LICENSE = var.nomad_license_key
+        CTEMPLATE_URL = var.ctemplate_dl_url
+        TABLE_PRODUCT = aws_dynamodb_table.product-data-table.id
+        TABLE_CART = aws_dynamodb_table.customer-cart.id
+        TABLE_ORDER = aws_dynamodb_table.customer-order-table.id
+        BRANCH_NAME = var.git_branch
+        LDAP_ADMIN_PASS = var.ldap_pass
+    })
 
     tags = {
         Name = "javaperks-server-${var.unit_prefix}"
@@ -43,13 +39,13 @@ resource "aws_instance" "hashi-server" {
     }
 
     depends_on = [
-        "aws_dynamodb_table.customer-order-table",
-        "aws_dynamodb_table.product-data-table"
+        aws_dynamodb_table.customer-order-table,
+        aws_dynamodb_table.product-data-table
     ]
 }
 resource "aws_db_subnet_group" "dbsubnets" {
     name = "javaperks-db-subnet-${var.unit_prefix}"
-    subnet_ids = ["${aws_subnet.private-subnet.id}", "${aws_subnet.private-subnet-2.id}"]
+    subnet_ids = [aws_subnet.private-subnet.id, aws_subnet.private-subnet-2.id]
 }
 
 
@@ -61,17 +57,17 @@ resource "aws_db_instance" "javaperks-mysql" {
     instance_class = "db.${var.instance_size}"
     name = "javaperks${var.unit_prefix}"
     identifier = "javaperksdb${var.unit_prefix}"
-    db_subnet_group_name = "${aws_db_subnet_group.dbsubnets.name}"
-    vpc_security_group_ids = ["${aws_security_group.javaperks-mysql-sg.id}"]
-    username = "${var.mysql_user}"
-    password = "${var.mysql_pass}"
+    db_subnet_group_name = aws_db_subnet_group.dbsubnets.name
+    vpc_security_group_ids = [aws_security_group.javaperks-mysql-sg.id]
+    username = var.mysql_user
+    password = var.mysql_pass
     skip_final_snapshot = true
 }
 
 resource "aws_security_group" "javaperks-mysql-sg" {
     name = "javaperks-mysql-sg-${var.unit_prefix}"
     description = "mysql security group"
-    vpc_id = "${aws_vpc.primary-vpc.id}"
+    vpc_id = aws_vpc.primary-vpc.id
 
     ingress {
         from_port = 3306
@@ -91,7 +87,7 @@ resource "aws_security_group" "javaperks-mysql-sg" {
 resource "aws_security_group" "hashi-server-sg" {
     name = "javaperks-server-sg-${var.unit_prefix}"
     description = "webserver security group"
-    vpc_id = "${aws_vpc.primary-vpc.id}"
+    vpc_id = aws_vpc.primary-vpc.id
 
     ingress {
         from_port = 22
@@ -227,16 +223,16 @@ data "aws_iam_policy_document" "hashi-main-access-doc" {
 
 resource "aws_iam_role" "hashi-main-access-role" {
   name               = "javaperks-access-role-${var.unit_prefix}"
-  assume_role_policy = "${data.aws_iam_policy_document.hashi-assume-role.json}"
+  assume_role_policy = data.aws_iam_policy_document.hashi-assume-role.json
 }
 
 resource "aws_iam_role_policy" "hashi-main-access-policy" {
   name   = "javaperks-access-policy-${var.unit_prefix}"
-  role   = "${aws_iam_role.hashi-main-access-role.id}"
-  policy = "${data.aws_iam_policy_document.hashi-main-access-doc.json}"
+  role   = aws_iam_role.hashi-main-access-role.id
+  policy = data.aws_iam_policy_document.hashi-main-access-doc.json
 }
 
 resource "aws_iam_instance_profile" "hashi-main-profile" {
   name = "javaperks-access-profile-${var.unit_prefix}"
-  role = "${aws_iam_role.hashi-main-access-role.name}"
+  role = aws_iam_role.hashi-main-access-role.name
 }
