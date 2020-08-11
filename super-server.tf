@@ -274,3 +274,4 @@ resource "aws_iam_instance_profile" "hashi-main-profile" {
     name = "javaperks-access-profile-${var.unit_prefix}"
     role = aws_iam_role.hashi-main-access-role.name
 }
+
