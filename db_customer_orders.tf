@@ -25,5 +25,9 @@ resource "aws_dynamodb_table" "customer-order-table" {
 
     tags = {
         Name = "customer-orders-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }

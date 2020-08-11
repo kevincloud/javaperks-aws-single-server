@@ -18,5 +18,9 @@ resource "aws_dynamodb_table" "db-instance-table" {
 
     tags = {
         Name = "allowed-instances-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }

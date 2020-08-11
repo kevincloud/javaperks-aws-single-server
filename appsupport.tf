@@ -2,6 +2,13 @@ resource "aws_s3_bucket" "staticimg" {
     bucket = "hc-workshop-2.0-assets-${var.unit_prefix}"
     acl = "public-read"
     force_destroy = true
+
+    tags = {
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
+    }
 }
 
 resource "aws_s3_bucket_policy" "staticimgpol" {

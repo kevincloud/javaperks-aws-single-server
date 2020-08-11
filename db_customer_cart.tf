@@ -26,5 +26,9 @@ resource "aws_dynamodb_table" "customer-cart" {
 
     tags = {
         Name = "customer-cart-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }

@@ -11,6 +11,10 @@ resource "aws_vpc" "primary-vpc" {
 
     tags = {
         Name = "javaperks-vpc-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -19,6 +23,10 @@ resource "aws_internet_gateway" "igw" {
 
     tags = {
         Name = "javaperks-igw-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -31,6 +39,10 @@ resource "aws_subnet" "public-subnet" {
 
     tags = {
         Name = "javaperks-public-subnet-1-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -41,6 +53,10 @@ resource "aws_subnet" "private-subnet" {
 
     tags = {
         Name = "javaperks-private-subnet-1-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -51,6 +67,10 @@ resource "aws_subnet" "private-subnet-2" {
 
     tags = {
         Name = "javaperks-private-subnet-2-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -65,6 +85,10 @@ resource "aws_eip" "nat-ip" {
 
     tags = {
         Name = "javaperks-eip-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -75,6 +99,10 @@ resource "aws_nat_gateway" "natgw" {
 
     tags = {
         Name = "javaperks-natgw-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -85,8 +113,13 @@ resource "aws_route_table" "natgw-route" {
         nat_gateway_id = aws_nat_gateway.natgw.id
     }
 
+
     tags = {
         Name = "javaperks-natgw-route-${var.unit_prefix}"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 

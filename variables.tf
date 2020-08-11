@@ -96,3 +96,19 @@ variable "git_branch" {
     description = "Branch used for this instance"
     default = "master"
 }
+
+variable "owner" {
+    description = ""
+}
+
+variable "hc_region" {
+    description = ""
+}
+
+variable "purpose" {
+    description = ""
+}
+
+variable "ttl" {
+    description = ""
+}

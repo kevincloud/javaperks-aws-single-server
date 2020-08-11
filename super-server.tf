@@ -32,10 +32,13 @@ resource "aws_instance" "hashi-server" {
         LDAP_ADMIN_PASS = var.ldap_pass
     })
 
+
     tags = {
         Name = "javaperks-server-${var.unit_prefix}"
-        TTL = "-1"
-        owner = "kcochran@hashicorp.com"
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 
     depends_on = [
@@ -46,6 +49,13 @@ resource "aws_instance" "hashi-server" {
 resource "aws_db_subnet_group" "dbsubnets" {
     name = "javaperks-db-subnet-${var.unit_prefix}"
     subnet_ids = [aws_subnet.private-subnet.id, aws_subnet.private-subnet-2.id]
+
+    tags = {
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
+    }
 }
 
 
@@ -62,6 +72,13 @@ resource "aws_db_instance" "javaperks-mysql" {
     username = var.mysql_user
     password = var.mysql_pass
     skip_final_snapshot = true
+
+    tags = {
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
+    }
 }
 
 resource "aws_security_group" "javaperks-mysql-sg" {
@@ -81,6 +98,13 @@ resource "aws_security_group" "javaperks-mysql-sg" {
         to_port = 0
         protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = {
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
@@ -178,6 +202,13 @@ resource "aws_security_group" "hashi-server-sg" {
         to_port = 0
         protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = {
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
     }
 }
 
