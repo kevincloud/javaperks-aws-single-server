@@ -213,57 +213,64 @@ resource "aws_security_group" "hashi-server-sg" {
 }
 
 data "aws_iam_policy_document" "hashi-assume-role" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
+    statement {
+        effect  = "Allow"
+        actions = ["sts:AssumeRole"]
 
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+        principals {
+            type        = "Service"
+            identifiers = ["ec2.amazonaws.com"]
+        }
     }
-  }
 }
 
 data "aws_iam_policy_document" "hashi-main-access-doc" {
-  statement {
-    sid       = "FullAccess"
-    effect    = "Allow"
-    resources = ["*"]
+    statement {
+        sid       = "FullAccess"
+        effect    = "Allow"
+        resources = ["*"]
 
-    actions = [
-        "ec2:DescribeInstances",
-        "ec2:DescribeTags",
-        "ec2messages:GetMessages",
-        "ssm:UpdateInstanceInformation",
-        "ssm:ListInstanceAssociations",
-        "ssm:ListAssociations",
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:GetRepositoryPolicy",
-        "ecr:DescribeRepositories",
-        "ecr:ListImages",
-        "ecr:BatchGetImage",
-        "kms:Encrypt",
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "s3:*"
-    ]
-  }
+        actions = [
+            "ec2:DescribeInstances",
+            "ec2:DescribeTags",
+            "ec2messages:GetMessages",
+            "ssm:UpdateInstanceInformation",
+            "ssm:ListInstanceAssociations",
+            "ssm:ListAssociations",
+            "ecr:GetAuthorizationToken",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:GetRepositoryPolicy",
+            "ecr:DescribeRepositories",
+            "ecr:ListImages",
+            "ecr:BatchGetImage",
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:DescribeKey",
+            "s3:*"
+        ]
+    }
 }
 
 resource "aws_iam_role" "hashi-main-access-role" {
-  name               = "javaperks-access-role-${var.unit_prefix}"
-  assume_role_policy = data.aws_iam_policy_document.hashi-assume-role.json
+    name               = "javaperks-access-role-${var.unit_prefix}"
+    assume_role_policy = data.aws_iam_policy_document.hashi-assume-role.json
+
+    tags = {
+        Owner = var.owner
+        Region = var.hc_region
+        Purpose = var.purpose
+        TTL = var.ttl
+    }
 }
 
 resource "aws_iam_role_policy" "hashi-main-access-policy" {
-  name   = "javaperks-access-policy-${var.unit_prefix}"
-  role   = aws_iam_role.hashi-main-access-role.id
-  policy = data.aws_iam_policy_document.hashi-main-access-doc.json
+    name   = "javaperks-access-policy-${var.unit_prefix}"
+    role   = aws_iam_role.hashi-main-access-role.id
+    policy = data.aws_iam_policy_document.hashi-main-access-doc.json
 }
 
 resource "aws_iam_instance_profile" "hashi-main-profile" {
-  name = "javaperks-access-profile-${var.unit_prefix}"
-  role = aws_iam_role.hashi-main-access-role.name
+    name = "javaperks-access-profile-${var.unit_prefix}"
+    role = aws_iam_role.hashi-main-access-role.name
 }
