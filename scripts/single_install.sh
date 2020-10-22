@@ -87,11 +87,13 @@ sudo bash -c "cat >/root/.aws/config" << 'EOF'
 [default]
 aws_access_key_id=${AWS_ACCESS_KEY}
 aws_secret_access_key=${AWS_SECRET_KEY}
+aws_session_token=${AWS_SESSION_TOKEN}
 EOF
 sudo bash -c "cat >/root/.aws/credentials" << 'EOF'
 [default]
 aws_access_key_id=${AWS_ACCESS_KEY}
 aws_secret_access_key=${AWS_SECRET_KEY}
+aws_session_token=${AWS_SESSION_TOKEN}
 EOF
 
 # 
@@ -106,6 +108,7 @@ export MYSQL_PASS="${MYSQL_PASS}"
 export MYSQL_DB="${MYSQL_DB}"
 export AWS_ACCESS_KEY="${AWS_ACCESS_KEY}"
 export AWS_SECRET_KEY="${AWS_SECRET_KEY}"
+export AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}"
 export AWS_KMS_KEY_ID="${AWS_KMS_KEY_ID}"
 export REGION="${REGION}"
 export S3_BUCKET="${S3_BUCKET}"
@@ -205,5 +208,3 @@ cd /root/javaperks-aws-single-server/
 
 # all done!
 echo "Javaperks Application complete."
-
-#
