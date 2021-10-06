@@ -1,26 +1,28 @@
-resource "aws_dynamodb_table" "db-instance-table" {
-    name = "allowed-instances-${var.unit_prefix}"
-    billing_mode = "PROVISIONED"
-    read_capacity = 20
-    write_capacity = 20
+module "instance-table" {
+    source  = "app.terraform.io/kevindemos/jp-ddb-table/aws"
+    version = "1.0.0"
+
+    name = "product-main-${var.unit_prefix}"
     hash_key = "ListType"
     range_key = "MachineType"
-    
-    attribute {
-        name = "ListType"
-        type = "S"
-    }
-    
-    attribute {
-        name = "MachineType"
-        type = "S"
-    }
+
+    attributes = [
+        {
+            name = "ListType"
+            type = "S"
+        },
+        {
+            name = "MachineType"
+            type = "S"
+        }
+    ]
 
     tags = {
-        Name = "allowed-instances-${var.unit_prefix}"
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
+        owner = var.owner
+        se-region = var.se-region
+        purpose = var.purpose
+        ttl = var.ttl
+        terraform = var.terraform
     }
 }
+

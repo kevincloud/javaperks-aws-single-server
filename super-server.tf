@@ -1,277 +1,91 @@
-resource "aws_instance" "hashi-server" {
-    ami = data.aws_ami.ubuntu.id
-    instance_type = var.instance_size
-    key_name = var.key_pair
-    vpc_security_group_ids = [aws_security_group.hashi-server-sg.id]
-    subnet_id = aws_subnet.public-subnet.id
-    iam_instance_profile = aws_iam_instance_profile.hashi-main-profile.id
-    user_data = templatefile("${path.module}/scripts/single_install.sh", {
-        MYSQL_HOST = aws_db_instance.javaperks-mysql.address
-        MYSQL_USER = var.mysql_user
-        MYSQL_PASS = var.mysql_pass
-        MYSQL_DB = var.mysql_database
-        AWS_ACCESS_KEY = var.aws_access_key
-        AWS_SECRET_KEY = var.aws_secret_key
-        AWS_SESSION_TOKEN = var.aws_session_token
-        AWS_KMS_KEY_ID = var.aws_kms_key_id
-        REGION = var.aws_region
-        S3_BUCKET = aws_s3_bucket.staticimg.id
-        VAULT_URL = var.vault_dl_url
-        VAULT_LICENSE = var.vault_license_key
-        CONSUL_URL = var.consul_dl_url
-        CONSUL_LICENSE = var.consul_license_key
-        CONSUL_JOIN_KEY = var.consul_join_key
-        CONSUL_JOIN_VALUE = var.consul_join_value
-        NOMAD_URL = var.nomad_dl_url
-        NOMAD_LICENSE = var.nomad_license_key
-        CTEMPLATE_URL = var.ctemplate_dl_url
-        TABLE_PRODUCT = aws_dynamodb_table.product-data-table.id
-        TABLE_CART = aws_dynamodb_table.customer-cart.id
-        TABLE_ORDER = aws_dynamodb_table.customer-order-table.id
-        BRANCH_NAME = var.git_branch
-        LDAP_ADMIN_PASS = var.ldap_pass
-    })
+module "instance_profile" {
+    source  = "app.terraform.io/kevindemos/jp-instance-profile/aws"
+    version = "1.0.0"
 
-
-    tags = {
-        Name = "javaperks-server-${var.unit_prefix}"
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
-    }
-
-    depends_on = [
-        aws_dynamodb_table.customer-order-table,
-        aws_dynamodb_table.product-data-table
+    unit_prefix = var.unit_prefix
+    actions = [
+        "ec2:DescribeInstances",
+        "ec2:DescribeTags",
+        "ec2messages:GetMessages",
+        "ssm:UpdateInstanceInformation",
+        "ssm:ListInstanceAssociations",
+        "ssm:ListAssociations",
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:GetRepositoryPolicy",
+        "ecr:DescribeRepositories",
+        "ecr:ListImages",
+        "ecr:BatchGetImage",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "s3:*"
     ]
-}
-resource "aws_db_subnet_group" "dbsubnets" {
-    name = "javaperks-db-subnet-${var.unit_prefix}"
-    subnet_ids = [aws_subnet.private-subnet.id, aws_subnet.private-subnet-2.id]
-
     tags = {
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
+        owner = var.owner
+        se-region = var.se-region
+        purpose = var.purpose
+        ttl = var.ttl
+        terraform = var.terraform
     }
 }
 
 
-resource "aws_db_instance" "javaperks-mysql" {
-    allocated_storage = 10
-    storage_type = "gp2"
-    engine = "mysql"
-    engine_version = "5.7"
-    instance_class = "db.${var.instance_size}"
+module "server" {
+    source  = "app.terraform.io/kevindemos/jp-server/aws"
+    version = "1.0.4"
+
+    vpc_id = module.network.vpc_id
+    unit_prefix = var.unit_prefix
+    key_pair = var.key_pair
+    subnet_id = module.network.public_subnet_id
+    instance_profile_id = module.instance_profile.id
+    mysql_host = module.mysql.db_address
+    mysql_user = var.mysql_user
+    mysql_pass = var.mysql_pass
+    mysql_database = var.mysql_database
+    aws_kms_key_id = var.aws_kms_key_id
+    region = var.region
+    s3_bucket_id = module.asset_bucket.id
+    vault_license_key = var.vault_license_key
+    consul_license_key = var.consul_license_key
+    nomad_license_key = var.nomad_license_key
+    consul_join_key = var.consul_join_key
+    consul_join_value = var.consul_join_value
+    table_product_id = module.product-table.id
+    table_cart_id = module.cust-cart-table.id
+    table_order_id = module.cust-order-table.id
+    git_branch = var.git_branch
+    ldap_pass = var.ldap_pass
+
+    tags = {
+        owner = var.owner
+        se-region = var.se-region
+        purpose = var.purpose
+        ttl = var.ttl
+        terraform = var.terraform
+    }
+}
+module "mysql" {
+    source  = "app.terraform.io/kevindemos/jp-mysql/aws"
+    version = "1.0.3"
+
     name = "javaperks${var.unit_prefix}"
+    vpc_id = module.network.vpc_id
+    unit_prefix = var.unit_prefix
     identifier = "javaperksdb${var.unit_prefix}"
-    db_subnet_group_name = aws_db_subnet_group.dbsubnets.name
-    vpc_security_group_ids = [aws_security_group.javaperks-mysql-sg.id]
-    username = var.mysql_user
-    password = var.mysql_pass
-    skip_final_snapshot = true
+    instance_size = "db.${var.instance_size}"
+    subnet_ids = module.network.private_subnet_ids
+    mysql_user = var.mysql_user
+    mysql_pass = var.mysql_pass
 
     tags = {
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
+        owner = var.owner
+        se-region = var.se-region
+        purpose = var.purpose
+        ttl = var.ttl
+        terraform = var.terraform
     }
-}
-
-resource "aws_security_group" "javaperks-mysql-sg" {
-    name = "javaperks-mysql-sg-${var.unit_prefix}"
-    description = "mysql security group"
-    vpc_id = aws_vpc.primary-vpc.id
-
-    ingress {
-        from_port = 3306
-        to_port = 3306
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    egress {
-        from_port = 0
-        to_port = 0
-        protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    tags = {
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
-    }
-}
-
-resource "aws_security_group" "hashi-server-sg" {
-    name = "javaperks-server-sg-${var.unit_prefix}"
-    description = "webserver security group"
-    vpc_id = aws_vpc.primary-vpc.id
-
-    ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 80
-        to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 389
-        to_port = 389
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 4646
-        to_port = 4648
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 4648
-        to_port = 4648
-        protocol = "udp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 5000
-        to_port = 5000
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-       from_port = 5801
-       to_port = 5801
-       protocol = "tcp"
-       cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 5821
-        to_port = 5826
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 8200
-        to_port = 8200
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 8300
-        to_port = 8303
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 8500
-        to_port = 8500
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 0
-        to_port = 0
-        protocol = "-1"
-        cidr_blocks = ["10.0.0.0/16"]
-    }
-
-    egress {
-        from_port = 0
-        to_port = 0
-        protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    tags = {
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
-    }
-}
-
-data "aws_iam_policy_document" "hashi-assume-role" {
-    statement {
-        effect  = "Allow"
-        actions = ["sts:AssumeRole"]
-
-        principals {
-            type        = "Service"
-            identifiers = ["ec2.amazonaws.com"]
-        }
-    }
-}
-
-data "aws_iam_policy_document" "hashi-main-access-doc" {
-    statement {
-        sid       = "FullAccess"
-        effect    = "Allow"
-        resources = ["*"]
-
-        actions = [
-            "ec2:DescribeInstances",
-            "ec2:DescribeTags",
-            "ec2messages:GetMessages",
-            "ssm:UpdateInstanceInformation",
-            "ssm:ListInstanceAssociations",
-            "ssm:ListAssociations",
-            "ecr:GetAuthorizationToken",
-            "ecr:BatchCheckLayerAvailability",
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:GetRepositoryPolicy",
-            "ecr:DescribeRepositories",
-            "ecr:ListImages",
-            "ecr:BatchGetImage",
-            "kms:Encrypt",
-            "kms:Decrypt",
-            "kms:DescribeKey",
-            "s3:*"
-        ]
-    }
-}
-
-resource "aws_iam_role" "hashi-main-access-role" {
-    name               = "javaperks-access-role-${var.unit_prefix}"
-    assume_role_policy = data.aws_iam_policy_document.hashi-assume-role.json
-
-    tags = {
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
-    }
-}
-
-resource "aws_iam_role_policy" "hashi-main-access-policy" {
-    name   = "javaperks-access-policy-${var.unit_prefix}"
-    role   = aws_iam_role.hashi-main-access-role.id
-    policy = data.aws_iam_policy_document.hashi-main-access-doc.json
-}
-
-resource "aws_iam_instance_profile" "hashi-main-profile" {
-    name = "javaperks-access-profile-${var.unit_prefix}"
-    role = aws_iam_role.hashi-main-access-role.name
 }
 

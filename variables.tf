@@ -1,16 +1,4 @@
-variable "aws_access_key" {
-    description = "AWS Access Key"
-}
-
-variable "aws_secret_key" {
-    description = "AWS Secret Key"
-}
-
-variable "aws_session_token" {
-    description = "AWS Session Token"
-}
-
-variable "aws_region" {
+variable "region" {
     description = "AWS Region"
     default = "us-east-1"
 }
@@ -41,26 +29,6 @@ variable "mysql_database" {
 variable "instance_size" {
     description = "Size of instance for most servers"
     default = "t3.large"
-}
-
-variable "consul_dl_url" {
-    description = "URL for downloading Consul"
-    default = "https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip"
-}
-
-variable "vault_dl_url" {
-    description = "URL for downloading Vault"
-    default = "https://releases.hashicorp.com/vault/1.2.3/vault_1.2.3_linux_amd64.zip"
-}
-
-variable "nomad_dl_url" {
-    description = "URL for downloading Nomad"
-    default = "https://releases.hashicorp.com/nomad/0.10.1/nomad_0.10.1_linux_amd64.zip"
-}
-
-variable "ctemplate_dl_url" {
-    description = "URL for downloading Consul Template"
-    default = "https://releases.hashicorp.com/consul-template/0.22.0/consul-template_0.22.0_linux_amd64.zip"
 }
 
 variable "consul_license_key" {
@@ -94,14 +62,14 @@ variable "ldap_pass" {
 
 variable "git_branch" {
     description = "Branch used for this instance"
-    default = "master"
+    default = "main"
 }
 
 variable "owner" {
     description = ""
 }
 
-variable "hc_region" {
+variable "se-region" {
     description = ""
 }
 
@@ -110,5 +78,9 @@ variable "purpose" {
 }
 
 variable "ttl" {
+    description = ""
+}
+
+variable "terraform" {
     description = ""
 }

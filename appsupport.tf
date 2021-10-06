@@ -1,32 +1,14 @@
-resource "aws_s3_bucket" "staticimg" {
-    bucket = "hc-workshop-2.0-assets-${var.unit_prefix}"
-    acl = "public-read"
-    force_destroy = true
+module "asset_bucket" {
+    source  = "app.terraform.io/kevindemos/jp-s3-bucket/aws"
+    version = "1.0.0"
+
+    name = "hc-workshop-2.0-assets-${var.unit_prefix}"
 
     tags = {
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
+        owner = var.owner
+        se-region = var.se-region
+        purpose = var.purpose
+        ttl = var.ttl
+        terraform = var.terraform
     }
-}
-
-resource "aws_s3_bucket_policy" "staticimgpol" {
-    bucket = aws_s3_bucket.staticimg.id
-
-    policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "ImageBucketPolicy",
-  "Statement": [
-    {
-      "Sid": "PublicReadForGetBucketObjects",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": ["s3:GetObject"],
-      "Resource": "arn:aws:s3:::${aws_s3_bucket.staticimg.id}/*"
-    }
-  ]
-}
-POLICY
 }

@@ -1,33 +1,36 @@
-resource "aws_dynamodb_table" "customer-order-table" {
-    name = "customer-orders-${var.unit_prefix}"
-    billing_mode = "PROVISIONED"
-    read_capacity = 20
-    write_capacity = 20
-    hash_key = "OrderId"
-    
-    attribute {
-        name = "OrderId"
-        type = "S"
-    }
-    
-    attribute {
-        name = "CustomerId"
-        type = "S"
-    }
+module "cust-order-table" {
+    source  = "app.terraform.io/kevindemos/jp-ddb-table/aws"
+    version = "1.0.0"
 
-    global_secondary_index {
-        name = "CustomerIndex"
-        hash_key = "CustomerId"
-        write_capacity = 10
-        read_capacity = 10
-        projection_type = "ALL"
-    }
+    name = "customer-orders-${var.unit_prefix}"
+    hash_key = "OrderId"
+
+    attributes = [
+        {
+            name = "OrderId"
+            type = "S"
+        },
+        {
+            name = "CustomerId"
+            type = "S"
+        }
+    ]
+
+    global_secondary_indexes = [
+        {
+            name = "CustomerIndex"
+            hash_key = "CustomerId"
+            write_capacity = 10
+            read_capacity = 10
+            projection_type = "ALL"
+        }
+    ]
 
     tags = {
-        Name = "customer-orders-${var.unit_prefix}"
-        Owner = var.owner
-        Region = var.hc_region
-        Purpose = var.purpose
-        TTL = var.ttl
+        owner = var.owner
+        se-region = var.se-region
+        purpose = var.purpose
+        ttl = var.ttl
+        terraform = var.terraform
     }
 }
